@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ma collection de minéraux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F5F2FF; --panel:#FFFFFF; --ink:#211A3A; --muted:#6B6488; --line:#E3DDF5;
+  --amethyste:#7B3FE4; --malachite:#0FA579; --citrine:#F2A900; --rhodo:#E4507A; --azurite:#2457D6;
+  --shadow:0 10px 30px -12px rgba(76,40,160,.35);
+  --display:"Unbounded",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15112A; --panel:#211B3D; --ink:#F1ECFF; --muted:#A79FC8; --line:#3A3263;
+    --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15112A; --panel:#211B3D; --ink:#F1ECFF; --muted:#A79FC8; --line:#3A3263;
+  --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--citrine);outline-offset:2px}
+img{max-width:100%}
+#bg{position:fixed;inset:0;z-index:-2;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);pointer-events:none}
+#bg.solo{grid-template-columns:1fr;grid-template-rows:1fr}
+#bg .tile{overflow:hidden;position:relative}
+#bg .tile:nth-child(5){grid-column:span 2}
+#bg.solo .tile:nth-child(5){grid-column:auto}
+#bg svg,#bg .pht{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(1.75) contrast(1.35) brightness(.92)}
+@media (min-width:760px){#bg{grid-template-columns:repeat(5,1fr);grid-template-rows:1fr}#bg .tile:nth-child(5){grid-column:auto}}
+#veil{position:fixed;inset:0;z-index:-1;background:var(--bg);opacity:.58;pointer-events:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #veil{opacity:.68}}
+#bgPick{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px 120px}
+
+/* ---------- En-tête ---------- */
+#hero{position:relative;padding:28px 0 18px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+#crystal{width:92px;height:110px;filter:drop-shadow(0 12px 18px rgba(123,63,228,.35))}
+#crystal .f{transition:fill .6s}
+@media (prefers-reduced-motion:no-preference){
+  #crystal{animation:float 5s ease-in-out infinite}
+  #crystal .shine{animation:shine 3.2s ease-in-out infinite}
+}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes shine{0%,100%{opacity:0}45%{opacity:.85}60%{opacity:0}}
+#collName{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,5.5vw,2.6rem);line-height:1.05;margin:0;letter-spacing:-.01em;background:none;border:0;padding:0;text-align:left;border-bottom:2px dashed transparent}
+#collName:hover{border-bottom-color:var(--line)}
+#collSub{color:var(--muted);margin:6px 0 0;font-size:.98rem}
+#hero>div>*,#tools,#chips{position:relative}
+#collName,#collSub{text-shadow:0 1px 10px var(--bg),0 0 22px var(--bg)}
+.small{text-shadow:0 1px 8px var(--bg)}
+#stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px;box-shadow:var(--shadow)}
+.stat b{font-family:var(--display);font-size:1.15rem;display:block;line-height:1.2}
+.stat span{font-size:.8rem;color:var(--muted)}
+
+/* ---------- Actions ---------- */
+#actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0 22px}
+.big{border:0;border-radius:18px;padding:14px 12px;font-weight:700;font-size:1rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow);transition:transform .15s,filter .15s;text-decoration:none;min-height:56px}
+.big:active{transform:scale(.96)}
+.big:hover{filter:brightness(1.08)}
+.big .ic{font-size:1.3rem}
+.b-add{background:linear-gradient(135deg,#8D4DF2,#6A2FD6)}
+.b-cam{background:linear-gradient(135deg,#2A67E8,#1C45B8)}
+.b-val{background:linear-gradient(135deg,#F5B400,#E08A00);color:#2B1B00}
+.b-wa{background:linear-gradient(135deg,#25D366,#128C4A)}
+.b-map{background:linear-gradient(135deg,#12B38A,#0A7F63)}
+.b-lbl{background:linear-gradient(135deg,#EE5A86,#C23064)}
+.b-ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+
+/* ---------- Filtres ---------- */
+#tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+#q{flex:1 1 220px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px 14px}
+#sort{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;font-size:.88rem;font-weight:600;display:flex;gap:6px;align-items:center}
+.chip i{width:10px;height:10px;border-radius:3px;transform:rotate(45deg);display:inline-block}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ---------- Grille ---------- */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.card{position:relative;background:var(--panel);border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .2s}
+.card:hover{transform:translateY(-3px) rotate(-.4deg)}
+.card .ph{aspect-ratio:1/1;background:#ddd center/cover;position:relative}
+.card .ph::after{content:"";position:absolute;inset:auto 0 0 0;height:22px;background:var(--fam);clip-path:polygon(0 100%,0 40%,18% 0,40% 55%,62% 5%,82% 60%,100% 20%,100% 100%)}
+.card .ph .num{position:absolute;top:8px;left:8px;background:rgba(20,14,40,.72);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:8px}
+.card .tx{padding:10px 12px 12px}
+.card h3{font-family:var(--display);font-weight:700;font-size:.98rem;margin:0 0 2px;line-height:1.2}
+.card p{margin:0;color:var(--muted);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .val{margin-top:6px;font-weight:700;font-size:.85rem;color:var(--malachite)}
+@media (prefers-reduced-motion:no-preference){
+  .card.born{animation:born .7s cubic-bezier(.2,1.4,.4,1)}
+}
+@keyframes born{0%{clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%);transform:scale(.6)}60%{clip-path:polygon(50% -20%,120% 50%,50% 120%,-20% 50%)}100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:scale(1)}}
+
+#empty{text-align:center;padding:40px 20px;border:2px dashed var(--line);border-radius:24px;color:var(--muted)}
+#empty h2{font-family:var(--display);color:var(--ink);font-size:1.2rem;margin:10px 0 6px}
+
+/* ---------- Feuille modale ---------- */
+.sheet{position:fixed;inset:0;display:none;z-index:40;background:rgba(18,12,38,.55);backdrop-filter:blur(4px)}
+.sheet.open{display:flex;align-items:flex-end;justify-content:center}
+.sheet .box{background:var(--bg);width:100%;max-width:640px;max-height:92%;overflow-y:auto;border-radius:26px 26px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px));position:relative}
+@media (min-width:700px){.sheet.open{align-items:center}.sheet .box{border-radius:26px}}
+@media (prefers-reduced-motion:no-preference){.sheet.open .box{animation:up .35s cubic-bezier(.2,1.2,.4,1)}}
+@keyframes up{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.sheet h2{font-family:var(--display);font-size:1.25rem;margin:0 40px 12px 0}
+.x{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:1.2rem}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps span{flex:1;height:6px;border-radius:6px;background:var(--line)}
+.steps span.on{background:linear-gradient(90deg,var(--amethyste),var(--rhodo))}
+.pickrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.preview{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;background:var(--line);display:block;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1 1 140px}
+label.f{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-top:10px}
+label.f input,label.f select,label.f textarea{display:block;width:100%;margin-top:4px;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 12px;font-size:1rem;color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.cand{display:block;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px;transition:border-color .2s,transform .15s}
+.cand:hover{border-color:var(--amethyste)}
+.cand.sel{border-color:var(--amethyste);box-shadow:0 0 0 4px rgba(123,63,228,.18)}
+.cand h4{font-family:var(--display);margin:0;font-size:1.02rem;display:flex;justify-content:space-between;gap:10px}
+.cand small{color:var(--muted)}
+.bar{height:6px;border-radius:6px;background:var(--line);margin:8px 0;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--citrine),var(--malachite))}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.links a{font-size:.82rem;font-weight:600;text-decoration:none;color:var(--azurite);background:rgba(36,87,214,.1);padding:5px 10px;border-radius:999px}
+.note{background:rgba(242,169,0,.14);border-left:4px solid var(--citrine);padding:10px 12px;border-radius:10px;font-size:.9rem;margin:10px 0}
+.thinking{display:flex;align-items:center;gap:12px;padding:18px;background:var(--panel);border-radius:18px;border:1px solid var(--line)}
+.gem{width:26px;height:26px;background:conic-gradient(var(--amethyste),var(--azurite),var(--malachite),var(--citrine),var(--rhodo),var(--amethyste));clip-path:polygon(50% 0,100% 38%,80% 100%,20% 100%,0 38%)}
+@media (prefers-reduced-motion:no-preference){.gem{animation:spin 1.4s linear infinite}}
+@keyframes spin{to{transform:rotate(360deg)}}
+dl.props{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0;font-size:.92rem}
+dl.props dt{color:var(--muted);font-weight:600}
+dl.props dd{margin:0}
+
+/* Étiquette de musée */
+.label{background:#FFFDF6;color:#2A2118;border:1.5px solid #2A2118;border-radius:4px;padding:14px 16px;font-family:Georgia,"Times New Roman",serif;margin:14px 0;box-shadow:4px 4px 0 var(--fam,#7B3FE4)}
+.label .lt{display:flex;justify-content:space-between;font-size:.75rem;border-bottom:1px solid #2A2118;padding-bottom:4px;margin-bottom:6px}
+.label .ln{font-size:1.35rem;font-weight:700;line-height:1.2}
+.label .lf{font-style:italic;font-size:.95rem}
+.label .ll{font-size:.85rem;margin-top:6px}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;z-index:60;transition:transform .3s;max-width:90%}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.danger{background:linear-gradient(135deg,#F0476E,#C42454)}
+.hide{display:none!important}
+/* Carte */
+#mapBox{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative}
+#mapSvg{display:block;width:100%;height:auto;touch-action:manipulation}
+#mapSvg .sea{fill:#DCEBFA}
+#mapSvg .land{fill:#F4EEDC;stroke:#B9AE8E;stroke-width:.6;stroke-linejoin:round}
+#mapSvg .grat{stroke:#C4D6EC;stroke-width:.5;fill:none}
+#mapSvg .pt{stroke:#fff;stroke-width:1.6;cursor:pointer}
+#mapSvg .pt.sel{stroke:var(--ink);stroke-width:2.6}
+#mapSvg .halo{fill:none;stroke-width:2}
+@media (prefers-reduced-motion:no-preference){#mapSvg .halo{animation:pulse 2.4s ease-out infinite}}
+@keyframes pulse{0%{opacity:.8;r:4}100%{opacity:0;r:16}}
+:root[data-theme="dark"] #mapSvg .sea{fill:#1D2B45}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #mapSvg .sea{fill:#1D2B45}:root:not([data-theme="light"]) #mapSvg .land{fill:#3A3552;stroke:#6A6290}:root:not([data-theme="light"]) #mapSvg .grat{stroke:#2A3A58}}
+:root[data-theme="dark"] #mapSvg .land{fill:#3A3552;stroke:#6A6290}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;border-radius:10px;padding:8px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.gpsbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:12px}
+.gpsbox b{font-family:var(--display);font-size:.9rem}
+.mini{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 10px;font-weight:600;font-size:.88rem}
+.lblgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;max-width:220px;margin:8px 0}
+.lblgrid button{aspect-ratio:2.1/1;border:1px solid var(--line);background:var(--panel);border-radius:4px;font-size:.75rem;font-weight:700}
+.lblgrid button.used{background:repeating-linear-gradient(45deg,var(--line),var(--line) 4px,transparent 4px,transparent 8px);color:var(--muted)}
+.lblgrid button.start{background:var(--rhodo);color:#fff;border-color:var(--rhodo)}
+.small{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div><div id="veil" aria-hidden="true"></div>
+<div class="wrap">
+  <header id="hero">
+    <svg id="crystal" viewBox="0 0 92 110" aria-hidden="true">
+      <polygon class="f" id="f1" points="46,2 70,30 46,40" fill="#9D6BF5"/>
+      <polygon class="f" id="f2" points="46,2 22,30 46,40" fill="#7B3FE4"/>
+      <polygon class="f" id="f3" points="22,30 46,40 46,106 14,88" fill="#5A26B8"/>
+      <polygon class="f" id="f4" points="70,30 46,40 46,106 78,88" fill="#8C55EE"/>
+      <polygon points="46,2 34,24 46,34" fill="#fff" class="shine" opacity="0"/>
+    </svg>
+    <div>
+      <button id="collName" title="Renommer la collection">Ma collection</button>
+      <p id="collSub">Touchez le titre pour renommer votre collection.</p>
+      <div id="stats"></div>
+    </div>
+  </header>
+
+  <nav id="actions">
+    <button class="big b-add" id="btnAdd"><span class="ic">➕</span> Ajouter un minéral</button>
+    <button class="big b-cam" id="btnCam"><span class="ic">📷</span> Prendre une photo</button>
+    <button class="big b-val" id="btnVal"><span class="ic">💰</span> Estimer la valeur</button>
+    <button class="big b-map" id="btnMap"><span class="ic">🗺️</span> Carte des trouvailles</button>
+    <button class="big b-lbl" id="btnLbl"><span class="ic">🏷️</span> Planche d'étiquettes</button>
+    <button class="big b-ghost" id="btnApp"><span class="ic">📲</span> Partager l'application</button>
+    <a class="big b-wa" id="btnWa" href="#" target="_blank" rel="noopener"><span class="ic">💬</span> Partager WhatsApp</a>
+  </nav>
+
+  <div id="tools">
+    <input id="q" type="search" placeholder="Rechercher un minéral, un lieu…" aria-label="Rechercher">
+    <select id="bgPick" aria-label="Fond d'écran"></select>
+    <select id="sort" aria-label="Trier">
+      <option value="recent">Plus récents</option>
+      <option value="nom">Nom A → Z</option>
+      <option value="valeur">Valeur</option>
+      <option value="durete">Dureté</option>
+    </select>
+  </div>
+  <div id="chips"></div>
+  <div id="grid"></div>
+  <div id="empty" class="hide">
+    <svg width="60" height="70" viewBox="0 0 92 110" aria-hidden="true"><polygon points="46,2 70,30 46,40" fill="#F2A900"/><polygon points="46,2 22,30 46,40" fill="#E4507A"/><polygon points="22,30 46,40 46,106 14,88" fill="#2457D6"/><polygon points="70,30 46,40 46,106 78,88" fill="#0FA579"/></svg>
+    <h2>Votre vitrine est vide</h2>
+    <p>Photographiez un premier minéral : l'app vous propose une identification, ses caractéristiques et une étiquette.</p>
+  </div>
+  <p class="small" id="modeInfo" style="margin-top:28px"></p>
+</div>
+
+<input type="file" id="fCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="fGal" accept="image/*" hidden>
+<input type="file" id="fImport" accept="application/json,.json" hidden>
+
+<!-- Ajout -->
+<div class="sheet" id="shAdd" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+  <div class="box">
+    <button class="x" data-close="shAdd" aria-label="Fermer">✕</button>
+    <h2 id="addTitle">Nouveau minéral</h2>
+    <div class="steps"><span id="st1"></span><span id="st2"></span><span id="st3"></span></div>
+    <div id="addBody"></div>
+  </div>
+</div>
+
+<!-- Fiche -->
+<div class="sheet" id="shView" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
+  <div class="box">
+    <button class="x" data-close="shView" aria-label="Fermer">✕</button>
+    <div id="viewBody"></div>
+  </div>
+</div>
+
+<!-- Valeur -->
+<div class="sheet" id="shVal" role="dialog" aria-modal="true" aria-labelledby="valTitle">
+  <div class="box">
+    <button class="x" data-close="shVal" aria-label="Fermer">✕</button>
+    <h2 id="valTitle">Valeur de la collection</h2>
+    <div id="valBody"></div>
+  </div>
+</div>
+
+<!-- Carte -->
+<div class="sheet" id="shMap" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+  <div class="box">
+    <button class="x" data-close="shMap" aria-label="Fermer">✕</button>
+    <h2 id="mapTitle">Carte des trouvailles</h2>
+    <div id="mapBody"></div>
+  </div>
+</div>
+
+<!-- Planche d'étiquettes -->
+<div class="sheet" id="shLbl" role="dialog" aria-modal="true" aria-labelledby="lblTitle">
+  <div class="box">
+    <button class="x" data-close="shLbl" aria-label="Fermer">✕</button>
+    <h2 id="lblTitle">Planche d'étiquettes A4</h2>
+    <div id="lblBody"></div>
+  </div>
+</div>
+
+<!-- Partage de l'application -->
+<div class="sheet" id="shApp" role="dialog" aria-modal="true" aria-labelledby="appTitle">
+  <div class="box">
+    <button class="x" data-close="shApp" aria-label="Fermer">✕</button>
+    <h2 id="appTitle">Partager l'application</h2>
+    <div id="appBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= Données ================= */
+const FAMILLES = {
+  "éléments natifs":"#E0A400","sulfures":"#6E7A8A","sulfosels":"#4E5866","halogénures":"#2457D6",
+  "oxydes":"#D0562A","hydroxydes":"#E07B4F","carbonates":"#E4507A","nitrates":"#C44BA0",
+  "borates":"#9B8E2A","sulfates":"#2BA6C9","chromates":"#F2A900","molybdates-tungstates":"#7A6BB8",
+  "phosphates":"#0FA579","arséniates":"#3FBF6F","vanadates":"#1C8C8C","silicates":"#7B3FE4",
+  "organiques":"#B5651D","roches":"#8A6F5A","fossiles":"#6B4E9B","météorites":"#414A63",
+  "gemmes taillées":"#D63C7A","autres":"#A0A0B0"
+};
+const QUALITES = ["Commun","Bon","Très beau","Exceptionnel"];
+
+let items = [];
+let meta = { nom:"Ma collection" };
+let famFilter = "";
+let db = null, sample = null, downloads = null, canImages = false;
+let lastBorn = null;
+
+const $ = (s)=>document.querySelector(s);
+const esc = (s)=>String(s==null?"":s).replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const eur = (n)=>Math.round(n).toLocaleString("fr-FR")+" €";
+
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2600);
+}
+
+/* ================= Stockage ================= */
+const LS_KEY="mineraux-v1";
+function lsLoad(){
+  try{ const r=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(r){items=r.items||[];meta=r.meta||meta;} }catch(e){}
+}
+function seedLoad(){
+  const el=document.getElementById("seed");
+  if(!el||items.length) return;
+  try{
+    const r=JSON.parse(el.textContent);
+    if(r&&Array.isArray(r.items)&&r.items.length){ items=r.items; if(r.meta&&r.meta.nom) meta=r.meta; lsSave(); }
+  }catch(e){}
+}
+function lsSave(){
+  try{ localStorage.setItem(LS_KEY,JSON.stringify({items,meta})); }catch(e){ toast("Stockage local plein : exportez une sauvegarde."); }
+}
+async function saveItem(it){
+  if(db){
+    try{ await db.collection("specimens").doc(it.id).set(JSON.parse(JSON.stringify(it))); return true; }
+    catch(e){ toast(e.code==="quota_exceeded"?"Collection pleine : supprimez des fiches.":"Enregistrement refusé ("+(e.code||"erreur")+")."); return false; }
+  }
+  const i=items.findIndex(x=>x.id===it.id); if(i>=0) items[i]=it; else items.push(it);
+  lsSave(); render(); return true;
+}
+async function removeItem(id){
+  if(db){ try{ await db.collection("specimens").doc(id).delete(); }catch(e){ toast("Suppression refusée."); return; } }
+  else { items=items.filter(x=>x.id!==id); lsSave(); render(); }
+}
+async function saveMeta(){
+  if(db){ try{ await db.doc("meta/info").set(JSON.parse(JSON.stringify(meta))); }catch(e){ toast("Nom non enregistré."); } }
+  else { lsSave(); render(); }
+}
+
+/* ================= Rendu ================= */
+function famColor(f){ return FAMILLES[(f||"").toLowerCase()]||FAMILLES["autres"]; }
+function nextNum(){ return items.reduce((m,x)=>Math.max(m,x.numero||0),0)+1; }
+function numStr(n){ return "N° "+String(n||0).padStart(3,"0"); }
+function valMid(x){
+  if(x.valPerso>0) return x.valPerso;
+  if(x.valMin>0||x.valMax>0) return ((x.valMin||0)+(x.valMax||0))/2;
+  return 0;
+}
+
+function render(){
+  $("#collName").textContent=meta.nom||"Ma collection";
+  document.title=(meta.nom||"Ma collection")+" · minéraux";
+  const tot=items.reduce((s,x)=>s+valMid(x),0);
+  const vmin=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMin||0)),0);
+  const vmax=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMax||0)),0);
+  const fams=new Set(items.map(x=>(x.famille||"autres").toLowerCase()));
+  $("#stats").innerHTML=
+    '<div class="stat"><b>'+items.length+'</b><span>spécimen'+(items.length>1?"s":"")+'</span></div>'+
+    '<div class="stat"><b>'+fams.size+'</b><span>famille'+(fams.size>1?"s":"")+'</span></div>'+
+    '<div class="stat"><b>'+(tot>0?(vmin===vmax?eur(vmin):eur(vmin)+" – "+eur(vmax)):"—")+'</b><span>valeur estimée</span></div>';
+  paintCrystal();
+
+  // puces familles
+  const counts={}; items.forEach(x=>{const f=(x.famille||"autres").toLowerCase(); counts[f]=(counts[f]||0)+1;});
+  const ch=['<button class="chip" data-fam="" aria-pressed="'+(!famFilter)+'">Toutes</button>'];
+  Object.keys(counts).sort().forEach(f=>ch.push('<button class="chip" data-fam="'+esc(f)+'" aria-pressed="'+(famFilter===f)+'"><i style="background:'+famColor(f)+'"></i>'+esc(f)+' · '+counts[f]+'</button>'));
+  $("#chips").innerHTML=items.length?ch.join(""):"";
+
+  // grille
+  const q=$("#q").value.trim().toLowerCase();
+  let list=items.filter(x=>{
+    if(famFilter && (x.famille||"autres").toLowerCase()!==famFilter) return false;
+    if(!q) return true;
+    return [x.nom,x.provenance,x.famille,x.formule,x.notes,x.couleur].join(" ").toLowerCase().includes(q);
+  });
+  const s=$("#sort").value;
+  list.sort((a,b)=>{
+    if(s==="nom") return (a.nom||"").localeCompare(b.nom||"","fr");
+    if(s==="valeur") return valMid(b)-valMid(a);
+    if(s==="durete") return (parseFloat(b.durete)||0)-(parseFloat(a.durete)||0);
+    return (b.createdAt||0)-(a.createdAt||0);
+  });
+  $("#grid").innerHTML=list.map(x=>{
+    const v=valMid(x);
+    return '<button class="card'+(x.id===lastBorn?" born":"")+'" data-id="'+x.id+'" style="--fam:'+famColor(x.famille)+'">'+
+      '<div class="ph" style="background-image:url('+(x.photo||"")+')"><span class="num">'+numStr(x.numero)+'</span></div>'+
+      '<div class="tx"><h3>'+esc(x.nom)+'</h3><p>'+esc(x.provenance||x.famille||"")+'</p>'+
+      (v>0?'<div class="val">≈ '+eur(v)+'</div>':'')+'</div></button>';
+  }).join("");
+  lastBorn=null;
+  $("#empty").classList.toggle("hide",items.length>0);
+  $("#btnWa").href="https://wa.me/?text="+encodeURIComponent(shareText());
+}
+
+function paintCrystal(){
+  // le cristal prend les couleurs des familles présentes
+  const cols=[...new Set(items.map(x=>famColor(x.famille)))];
+  const base=cols.length?cols:["#9D6BF5","#7B3FE4","#5A26B8","#8C55EE"];
+  ["f1","f2","f3","f4"].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.setAttribute("fill",base[i%base.length]); });
+}
+
+function shareText(){
+  const lines=["💎 "+(meta.nom||"Ma collection")+" — "+items.length+" minéral"+(items.length>1?"aux":"")];
+  items.slice().sort((a,b)=>(a.numero||0)-(b.numero||0)).forEach(x=>{
+    lines.push("• "+numStr(x.numero)+" "+x.nom+(x.provenance?" ("+x.provenance+")":"")+(valMid(x)>0?" ≈ "+eur(valMid(x)):""));
+  });
+  const vmin=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMin||0)),0);
+  const vmax=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMax||0)),0);
+  if(vmax>0) lines.push("","Valeur estimée : "+(vmin===vmax?eur(vmin):eur(vmin)+" à "+eur(vmax)));
+  let t=lines.join("\n");
+  if(t.length>3500) t=t.slice(0,3500)+"\n…";
+  return t;
+}
+
+/* ================= Fond minéral ================= */
+const BGS={mosaique:"Fond : mosaïque",labradorite:"Fond : labradorite","oeil-tigre":"Fond : œil de tigre",cristal:"Fond : cristal de roche","oeil-celeste":"Fond : œil céleste",lapis:"Fond : lapis-lazuli",photos:"Fond : mes photos",aucun:"Fond : aucun"};
+let bgTheme=localStorage.getItem("mineraux-bg")||"mosaique";
+function prng(seed){ let s=seed||1; return ()=>{ s=(s*1664525+1013904223)%4294967296; return s/4294967296; }; }
+function svgWrap(id,inner){ return '<svg viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>'; }
+function texLabradorite(u){
+  const r=prng(7), flash=[];
+  const grads='<linearGradient id="'+u+'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1550c8"/><stop offset=".55" stop-color="#19cfc4"/><stop offset="1" stop-color="#0a1a44"/></linearGradient>'+
+    '<linearGradient id="'+u+'b" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0d7a4e"/><stop offset=".5" stop-color="#c9a227"/><stop offset="1" stop-color="#10203f"/></linearGradient>'+
+    '<linearGradient id="'+u+'c" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4fd0"/><stop offset=".6" stop-color="#2f8ed6"/><stop offset="1" stop-color="#0b1430"/></linearGradient>';
+  for(let i=0;i<9;i++){
+    const y=r()*700, h=60+r()*150, x=-40+r()*160, w=260+r()*220, sk=r()*70-35;
+    flash.push('<polygon points="'+x+','+y+' '+(x+w)+','+(y+sk)+' '+(x+w-20)+','+(y+sk+h)+' '+(x-10)+','+(y+h)+'" fill="url(#'+u+"abc"[i%3]+')" opacity="'+(.5+r()*.45).toFixed(2)+'" style="mix-blend-mode:screen"/>');
+  }
+  return svgWrap(u,'<defs>'+grads+'<filter id="'+u+'f" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency="0.007 0.02" numOctaves="4" seed="11"/><feDisplacementMap in="SourceGraphic" scale="70"/><feGaussianBlur stdDeviation="1.6"/></filter></defs>'+
+    '<rect width="400" height="700" fill="#080d16"/><g filter="url(#'+u+'f)">'+flash.join("")+'</g>'+
+    '<g stroke="#9fc4ff" stroke-width=".8" fill="none" opacity=".2"><path d="M0,120 C120,150 240,90 400,160"/><path d="M0,430 C140,390 250,470 400,420"/></g>');
+}
+function texTigre(u){
+  const r=prng(23); let st="";
+  for(let i=0;i<46;i++){
+    const x=i*9-10, w=5+r()*5, t=r();
+    const c=t<.3?"#2a1508":(t<.6?"#8a4b12":(t<.85?"#d79a2b":"#f6d477"));
+    st+='<rect x="'+x+'" y="-40" width="'+w.toFixed(1)+'" height="780" fill="'+c+'" opacity="'+(.55+r()*.45).toFixed(2)+'"/>';
+  }
+  return svgWrap(u,'<defs><filter id="'+u+'f" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.004 0.012" numOctaves="3" seed="5"/><feDisplacementMap in="SourceGraphic" scale="55"/></filter>'+
+    '<radialGradient id="'+u+'g" cx=".5" cy=".42" r=".55"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>'+
+    '<rect width="400" height="700" fill="#3a1d08"/><g filter="url(#'+u+'f)">'+st+'</g><rect width="400" height="700" fill="url(#'+u+'g)" style="mix-blend-mode:screen"/>');
+}
+function texCristal(u){
+  const r=prng(41); let fc="";
+  for(let i=0;i<14;i++){
+    const x=r()*400, y=r()*700, w=60+r()*120, h=180+r()*320, sk=r()*40-20;
+    fc+='<polygon points="'+x+','+y+' '+(x+w)+','+(y+sk)+' '+(x+w*.8)+','+(y+h)+' '+(x-w*.15)+','+(y+h-30)+'" fill="url(#'+u+(r()<.5?'a':'b')+')" opacity="'+(.35+r()*.5).toFixed(2)+'"/>';
+  }
+  return svgWrap(u,'<defs><linearGradient id="'+u+'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#9fb6c9" stop-opacity=".25"/></linearGradient>'+
+    '<linearGradient id="'+u+'b" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dff0ff" stop-opacity=".8"/><stop offset=".6" stop-color="#8fa8c0" stop-opacity=".35"/><stop offset="1" stop-color="#ffffff" stop-opacity=".6"/></linearGradient>'+
+    '<filter id="'+u+'f"><feGaussianBlur stdDeviation="1.2"/></filter></defs>'+
+    '<rect width="400" height="700" fill="#6e8497"/><g filter="url(#'+u+'f)">'+fc+'</g>'+
+    '<g stroke="#ffffff" stroke-opacity=".45" stroke-width="1.4" fill="none"><path d="M40,0 L150,700"/><path d="M300,0 L210,700"/></g>');
+}
+function texCeleste(u){
+  const r=prng(59); let rings="";
+  const cx=200, cy=330;
+  for(let i=13;i>=0;i--){
+    const rad=18+i*26, t=i%2;
+    rings+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rad+'" ry="'+(rad*.86).toFixed(0)+'" fill="'+(t?"#cfe3f7":"#1f4f9c")+'" opacity="'+(.55+r()*.4).toFixed(2)+'"/>';
+  }
+  return svgWrap(u,'<defs><filter id="'+u+'f" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="3"/><feDisplacementMap in="SourceGraphic" scale="26"/></filter>'+
+    '<radialGradient id="'+u+'p" cx=".5" cy=".47" r=".2"><stop offset="0" stop-color="#05204a"/><stop offset="1" stop-color="#0a3a78"/></radialGradient></defs>'+
+    '<rect width="400" height="700" fill="#123463"/><g filter="url(#'+u+'f)">'+rings+'<ellipse cx="'+cx+'" cy="'+cy+'" rx="46" ry="40" fill="url(#'+u+'p)"/>'+
+    '<ellipse cx="'+(cx-14)+'" cy="'+(cy-14)+'" rx="12" ry="9" fill="#eaf4ff" opacity=".7"/></g>');
+}
+function texLapis(u){
+  const r=prng(97); let dots="", veins="";
+  for(let i=0;i<70;i++) dots+='<circle cx="'+(r()*400).toFixed(0)+'" cy="'+(r()*700).toFixed(0)+'" r="'+(.8+r()*2.2).toFixed(1)+'" fill="#e3bb45" opacity="'+(.5+r()*.5).toFixed(2)+'"/>';
+  for(let i=0;i<7;i++){
+    const y=r()*700;
+    veins+='<path d="M-20,'+y.toFixed(0)+' C120,'+(y+r()*120-60).toFixed(0)+' 260,'+(y+r()*140-70).toFixed(0)+' 420,'+(y+r()*100-50).toFixed(0)+'" stroke="#e8eef7" stroke-opacity="'+(.25+r()*.45).toFixed(2)+'" stroke-width="'+(2+r()*7).toFixed(1)+'" fill="none"/>';
+  }
+  return svgWrap(u,'<defs><filter id="'+u+'f"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="5" seed="17" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 .05 0 0 0 0 .13 0 0 0 0 .45 0 0 0 .55 0"/></filter>'+
+    '<filter id="'+u+'b"><feGaussianBlur stdDeviation="1.6"/></filter></defs>'+
+    '<rect width="400" height="700" fill="#0e2470"/><rect width="400" height="700" filter="url(#'+u+'f)" opacity=".9"/>'+
+    '<g filter="url(#'+u+'b)">'+veins+'</g>'+dots);
+}
+const TEX={labradorite:texLabradorite,"oeil-tigre":texTigre,cristal:texCristal,"oeil-celeste":texCeleste,lapis:texLapis};
+function paintBg(){
+  const bg=$("#bg"); if(!bg) return;
+  bg.classList.remove("solo");
+  if(bgTheme==="aucun"){ bg.innerHTML=""; $("#veil").style.opacity="1"; return; }
+  $("#veil").style.opacity="";
+  if(bgTheme==="photos"){
+    const ph=items.filter(x=>x.photo).slice(0,5);
+    if(!ph.length){ bgTheme="mosaique"; }
+    else {
+      if(ph.length===1) bg.classList.add("solo");
+      bg.innerHTML=ph.map(x=>'<div class="tile"><img class="pht" src="'+x.photo+'" alt=""></div>').join("");
+      return;
+    }
+  }
+  if(bgTheme==="mosaique"){
+    bg.innerHTML=Object.keys(TEX).map((k,i)=>'<div class="tile">'+TEX[k]("b"+i+"_")+'</div>').join("");
+  } else {
+    bg.classList.add("solo");
+    bg.innerHTML='<div class="tile">'+(TEX[bgTheme]||texLabradorite)("bs_")+'</div>';
+  }
+}
+
+/* ================= Photos ================= */
+function loadImg(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file); const im=new Image();
+    im.onload=()=>{res(im);}; im.onerror=()=>rej(new Error("image"));
+    im.src=url;
+  });
+}
+function draw(im,max){
+  const r=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+  const c=document.createElement("canvas");
+  c.width=Math.round(im.naturalWidth*r); c.height=Math.round(im.naturalHeight*r);
+  c.getContext("2d").drawImage(im,0,0,c.width,c.height); return c;
+}
+function readExifGps(buf){
+  const v=new DataView(buf);
+  if(v.byteLength<4||v.getUint16(0)!==0xFFD8) return null;
+  let off=2;
+  while(off<v.byteLength-4){
+    const mk=v.getUint16(off);
+    if(mk===0xFFE1 && v.getUint32(off+4)===0x45786966){
+      const t=off+10, le=v.getUint16(t)===0x4949;
+      const g16=(o)=>v.getUint16(o,le), g32=(o)=>v.getUint32(o,le);
+      const i0=t+g32(t+4); const n=g16(i0); let gp=0;
+      for(let i=0;i<n;i++){ const e=i0+2+i*12; if(g16(e)===0x8825) gp=t+g32(e+8); }
+      if(!gp) return null;
+      const gn=g16(gp), tg={};
+      for(let i=0;i<gn;i++){
+        const e=gp+2+i*12, tag=g16(e), type=g16(e+2), cnt=g32(e+4);
+        if(type===2) tg[tag]=String.fromCharCode(v.getUint8(e+8));
+        else if(type===5&&cnt===3){ const p=t+g32(e+8); const r=(k)=>g32(p+k*8)/(g32(p+k*8+4)||1); tg[tag]=r(0)+r(1)/60+r(2)/3600; }
+      }
+      if(tg[2]==null||tg[4]==null) return null;
+      let lat=tg[2], lon=tg[4];
+      if(tg[1]==="S") lat=-lat; if(tg[3]==="W") lon=-lon;
+      if(!isFinite(lat)||!isFinite(lon)||(lat===0&&lon===0)) return null;
+      return {lat:+lat.toFixed(5),lon:+lon.toFixed(5)};
+    }
+    if((mk&0xFF00)!==0xFF00) break;
+    off+=2+v.getUint16(off+2);
+  }
+  return null;
+}
+function getHere(){
+  return new Promise((res)=>{
+    if(!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition(
+      (p)=>res({lat:+p.coords.latitude.toFixed(5),lon:+p.coords.longitude.toFixed(5)}),
+      ()=>res(null),{enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+  });
+}
+async function prepPhoto(file){
+  let gps=null;
+  try{ gps=readExifGps(await file.slice(0,262144).arrayBuffer()); }catch(e){ gps=null; }
+  const im=await loadImg(file);
+  let q=.72, c=draw(im,820), d=c.toDataURL("image/jpeg",q);
+  while(d.length>170000 && q>.35){ q-=.08; d=c.toDataURL("image/jpeg",q); }
+  if(d.length>170000){ c=draw(im,560); d=c.toDataURL("image/jpeg",.6); }
+  const big=draw(im,1400);
+  const blob=await new Promise(r=>big.toBlob(r,"image/jpeg",.85));
+  return {thumb:d, blob, gps};
+}
+
+/* ================= Liens Web ================= */
+function webLinks(nom,nomEn){
+  const n=encodeURIComponent(nom||""), e=encodeURIComponent(nomEn||nom||"");
+  return '<div class="links">'+
+    '<a href="https://www.geowiki.fr/index.php?search='+n+'" target="_blank" rel="noopener">Géowiki 🇫🇷</a>'+
+    '<a href="https://fr.wikipedia.org/w/index.php?search='+n+'" target="_blank" rel="noopener">Wikipédia 🇫🇷</a>'+
+    '<a href="https://www.geoforum.fr/search/?q='+n+'" target="_blank" rel="noopener">Géoforum 🇫🇷</a>'+
+    '<a href="https://www.google.com/search?q=site%3Ageminterest.com+'+n+'" target="_blank" rel="noopener">Géminterest 🇫🇷</a>'+
+    '<a href="https://www.mindat.org/search.php?search='+e+'" target="_blank" rel="noopener">Mindat</a>'+
+    '<a href="https://www.google.com/search?tbm=isch&q='+n+'+min%C3%A9ral" target="_blank" rel="noopener">Photos</a>'+
+    '</div>';
+}
+
+/* ================= Assistant IA ================= */
+const SCHEMA='{"candidats":[{"nom":"nom français","nom_en":"English name","formule":"formule chimique","famille":"une seule valeur parmi : éléments natifs, sulfures, sulfosels, halogénures, oxydes, hydroxydes, carbonates, nitrates, borates, sulfates, chromates, molybdates-tungstates, phosphates, arséniates, vanadates, silicates, organiques, roches, fossiles, météorites, gemmes taillées, autres","confiance":0,"durete":"échelle de Mohs, ex 7","systeme":"système cristallin","couleur":"","eclat":"","trait":"","densite":"","gisements":"gisements célèbres","indices":"ce qui sur la photo oriente vers ce candidat","test":"test simple à faire soi-même pour confirmer"}],"remarque":""}';
+function errMsg(e){
+  const c=e&&e.code;
+  if(c==="not_granted"||c==="sampling_disabled") return "L'assistant Claude n'est pas autorisé pour cette page. Saisissez le nom à la main.";
+  if(c==="rate_limited") return "Trop de demandes pour le moment. Réessayez dans un instant.";
+  if(c==="image_rejected") return "Photo refusée (format ou taille). Essayez une autre photo.";
+  if(c==="invalid_json") return "Réponse illisible. Appuyez de nouveau pour réessayer.";
+  if(c==="session_expired") return "Session expirée : reconnectez-vous à Claude.";
+  if(c==="cancelled") return "Recherche annulée.";
+  return "Recherche impossible pour le moment ("+(c||"erreur")+").";
+}
+async function aiIdentify(blob){
+  const prompt="Tu es minéralogiste expert. La photo montre un spécimen de la collection d'un amateur (minéral, roche ou fossile). "+
+    "Propose au plus 3 identifications possibles, par confiance décroissante (confiance de 0 à 100, honnête). "+
+    "Tout en français. Si la photo ne montre pas de spécimen minéral, renvoie candidats vide et explique dans remarque. "+
+    "Réponds uniquement avec ce JSON :\n"+SCHEMA;
+  return sample.json(prompt,{images:blob});
+}
+async function aiByName(nom){
+  const prompt="Tu es minéralogiste expert. Donne la fiche du minéral ou de la roche nommé : \""+nom+"\". "+
+    "Un seul candidat, confiance 100 si le nom est correct, sinon corrige l'orthographe dans nom. Tout en français. "+
+    "Réponds uniquement avec ce JSON :\n"+SCHEMA;
+  return sample.json(prompt,{modelTier:"quick"});
+}
+async function aiValue(list){
+  const data=list.map(x=>({id:x.id,nom:x.nom,provenance:x.provenance||"inconnue",taille_cm:x.taille||"",poids_g:x.poids||"",qualite:x.qualite||"Bon",notes:(x.notes||"").slice(0,120)}));
+  const prompt="Tu es expert en marché des minéraux de collection (bourses aux minéraux, ventes entre amateurs, en France). "+
+    "Estime pour chaque spécimen une fourchette de prix de revente réaliste en euros, selon l'espèce, la taille, le poids, la qualité déclarée et la provenance. "+
+    "Sois prudent : sans photo détaillée, la fourchette doit rester large. "+
+    "Réponds uniquement avec ce JSON : {\"items\":[{\"id\":\"\",\"min\":0,\"max\":0,\"note\":\"une phrase\"}],\"commentaire\":\"conseil global en 2 phrases\"}\n\nSpécimens :\n"+JSON.stringify(data);
+  return sample.json(prompt,{modelTier:"default",cache:false});
+}
+
+/* ================= Ajout (3 étapes) ================= */
+let draft=null;
+function steps(n){ ["st1","st2","st3"].forEach((id,i)=>$("#"+id).classList.toggle("on",i<n)); }
+function openSheet(id){ $("#"+id).classList.add("open"); document.body.style.overflow="hidden"; }
+function closeSheet(id){ $("#"+id).classList.remove("open"); document.body.style.overflow=""; }
+
+function startAdd(photo){
+  draft={id:uid(),createdAt:Date.now(),numero:nextNum(),qualite:"Bon",mode:"Trouvé",dateAcq:new Date().toISOString().slice(0,10)};
+  if(photo) { draft.photo=photo.thumb; draft._blob=photo.blob; setPhotoGps(photo); stepIdentify(); }
+  else stepPhoto();
+  openSheet("shAdd");
+}
+function stepPhoto(){
+  steps(1);
+  $("#addBody").innerHTML=
+    '<p>Commencez par une photo nette du minéral, sur fond neutre et bien éclairé.</p>'+
+    '<div class="pickrow"><button class="big b-cam" id="aCam"><span class="ic">📷</span> Appareil photo</button>'+
+    '<button class="big b-add" id="aGal"><span class="ic">🖼️</span> Galerie</button></div>'+
+    '<button class="big b-ghost" id="aNoPhoto" style="width:100%;margin-top:10px">Continuer sans photo</button>';
+  $("#aCam").onclick=()=>$("#fCam").click();
+  $("#aGal").onclick=()=>$("#fGal").click();
+  $("#aNoPhoto").onclick=()=>stepIdentify();
+}
+function stepIdentify(){
+  steps(2);
+  const hasPhoto=!!draft.photo;
+  $("#addBody").innerHTML=
+    (hasPhoto?'<img class="preview" src="'+draft.photo+'" alt="Photo du spécimen">':'')+
+    (sample&&hasPhoto&&canImages?'<button class="big b-add" id="aId" style="width:100%"><span class="ic">🔍</span> Rechercher une correspondance</button>':'')+
+    '<label class="f">Vous connaissez déjà le nom ?<input id="aName" placeholder="ex : Améthyste, Pyrite, Fluorite"></label>'+
+    '<div class="row"><button class="big b-ghost" id="aByName">'+(sample?"Chercher la fiche":"Continuer")+'</button></div>'+
+    '<p class="small">La recherche Web par image (Google Lens) reste possible : enregistrez la photo puis déposez-la sur <a href="https://lens.google.com/" target="_blank" rel="noopener">lens.google.com</a>.</p>'+
+    '<div id="aRes"></div>';
+  const bi=$("#aId"); if(bi) bi.onclick=()=>runAI(()=>aiIdentify(draft._blob));
+  $("#aByName").onclick=()=>{
+    const n=$("#aName").value.trim();
+    if(!n){ toast("Saisissez un nom."); return; }
+    if(sample) runAI(()=>aiByName(n));
+    else { draft.nom=n; stepLabel(); }
+  };
+}
+async function runAI(fn){
+  const res=$("#aRes");
+  res.innerHTML='<div class="thinking"><div class="gem"></div><div><b>Analyse en cours…</b><br><span class="small">Comptez 10 à 40 secondes.</span></div></div>';
+  try{
+    const r=await fn();
+    const c=(r&&Array.isArray(r.candidats))?r.candidats:[];
+    if(!c.length){ res.innerHTML='<div class="note">'+esc((r&&r.remarque)||"Aucune correspondance trouvée. Essayez une autre photo ou saisissez le nom.")+'</div>'; return; }
+    res.innerHTML='<p><b>Correspondances proposées</b> — choisissez la bonne :</p>'+
+      c.map((x,i)=>'<div class="cand" role="button" tabindex="0" data-i="'+i+'"><h4><span>'+esc(x.nom)+'</span><small>'+(Math.max(0,Math.min(100,x.confiance|0)))+' %</small></h4>'+
+        '<div class="bar"><i style="width:'+Math.max(0,Math.min(100,x.confiance|0))+'%"></i></div>'+
+        '<small>'+esc([x.formule,x.famille,x.durete?("dureté "+x.durete):""].filter(Boolean).join(" · "))+'</small>'+
+        (x.indices?'<p style="margin:6px 0 0;font-size:.9rem">'+esc(x.indices)+'</p>':'')+
+        (x.test?'<div class="note">🧪 Pour confirmer : '+esc(x.test)+'</div>':'')+
+        webLinks(x.nom,x.nom_en)+'</div>').join("")+
+      (r.remarque?'<p class="small">'+esc(r.remarque)+'</p>':'');
+    res.querySelectorAll(".cand").forEach(el=>{
+      const pick=(ev)=>{ if(ev.target.closest("a")) return; const x=c[+el.dataset.i]; applyCand(x); stepLabel(); };
+      el.onclick=pick; el.onkeydown=(ev)=>{ if(ev.key==="Enter") pick(ev); };
+    });
+  }catch(e){
+    res.innerHTML='<div class="note">'+esc(errMsg(e))+'</div>';
+    if(e&&(e.code==="not_granted"||e.code==="sampling_disabled")) sample=null;
+  }
+}
+function applyCand(x){
+  ["nom","formule","famille","durete","systeme","couleur","eclat","trait","densite","gisements"].forEach(k=>{ if(x[k]!=null) draft[k]=String(x[k]); });
+  draft.nomEn=x.nom_en||"";
+  if(draft.famille) draft.famille=draft.famille.toLowerCase();
+}
+function stepLabel(){
+  steps(3);
+  const d=draft;
+  const famOpts=Object.keys(FAMILLES).map(f=>'<option'+((d.famille||"autres")===f?" selected":"")+'>'+f+'</option>').join("");
+  $("#addBody").innerHTML=
+    (d.photo?'<img class="preview" src="'+d.photo+'" alt="">':'')+
+    '<p style="margin:0">Vérifiez et complétez l\'étiquette, puis enregistrez.</p>'+
+    '<label class="f">Nom du minéral<input id="eNom" value="'+esc(d.nom||"")+'" required></label>'+
+    '<div class="grid2">'+
+    '<label class="f">Formule<input id="eFormule" value="'+esc(d.formule||"")+'"></label>'+
+    '<label class="f">Famille<select id="eFam">'+famOpts+'</select></label>'+
+    '<label class="f">Provenance (lieu)<input id="eProv" value="'+esc(d.provenance||"")+'" placeholder="ex : Chessy, Rhône"></label>'+
+    '<label class="f">Date<input id="eDate" type="date" value="'+esc(d.dateAcq||"")+'"></label>'+
+    '<label class="f">Obtenu par<select id="eMode">'+["Trouvé","Acheté","Échangé","Offert"].map(m=>'<option'+(d.mode===m?" selected":"")+'>'+m+'</option>').join("")+'</select></label>'+
+    '<label class="f">Prix payé (€)<input id="ePrix" type="number" min="0" step="1" value="'+esc(d.prixAchat||"")+'"></label>'+
+    '<label class="f">Taille (cm)<input id="eTaille" value="'+esc(d.taille||"")+'" placeholder="ex : 5 x 3 x 2"></label>'+
+    '<label class="f">Poids (g)<input id="ePoids" type="number" min="0" value="'+esc(d.poids||"")+'"></label>'+
+    '<label class="f">Qualité<select id="eQual">'+QUALITES.map(q=>'<option'+(d.qualite===q?" selected":"")+'>'+q+'</option>').join("")+'</select></label>'+
+    '<label class="f">N° d\'inventaire<input id="eNum" type="number" min="1" value="'+(d.numero||1)+'"></label>'+
+    '</div>'+
+    '<div class="gpsbox" id="gpsBox"></div>'+
+    '<label class="f">Notes<textarea id="eNotes" rows="2">'+esc(d.notes||"")+'</textarea></label>'+
+    (d.nom?webLinks(d.nom,d.nomEn):'')+
+    '<div class="row"><button class="big b-ghost" id="eBack">Retour</button><button class="big b-add" id="eSave"><span class="ic">💎</span> Enregistrer</button></div>';
+  paintGps();
+  $("#eBack").onclick=()=>stepIdentify();
+  $("#eSave").onclick=async()=>{
+    const nom=$("#eNom").value.trim();
+    if(!nom){ toast("Donnez un nom au minéral."); $("#eNom").focus(); return; }
+    const it=Object.assign({},draft,{
+      nom, formule:$("#eFormule").value.trim(), famille:$("#eFam").value, provenance:$("#eProv").value.trim(),
+      dateAcq:$("#eDate").value, mode:$("#eMode").value, prixAchat:parseFloat($("#ePrix").value)||0,
+      taille:$("#eTaille").value.trim(), poids:parseFloat($("#ePoids").value)||0, qualite:$("#eQual").value,
+      numero:parseInt($("#eNum").value,10)||nextNum(), notes:$("#eNotes").value.trim()
+    });
+    const la=parseFloat(($("#eLat")||{}).value), lo=parseFloat(($("#eLon")||{}).value);
+    if(isFinite(la)&&isFinite(lo)&&Math.abs(la)<=90&&Math.abs(lo)<=180){ it.lat=la; it.lon=lo; if(la!==draft.lat||lo!==draft.lon) it.gpsSrc="manuel"; }
+    else { it.lat=null; it.lon=null; it.gpsSrc=""; }
+    delete it._blob;
+    $("#eSave").disabled=true;
+    lastBorn=it.id;
+    if(await saveItem(it)){ closeSheet("shAdd"); toast(nom+" ajouté à la collection ✨"); draft=null; }
+    else $("#eSave").disabled=false;
+  };
+}
+
+/* ================= Position GPS ================= */
+const GPS_SRC={photo:"lue dans la photo",terrain:"position du téléphone",lieu:"déduite de la provenance",manuel:"saisie à la main"};
+function setPhotoGps(p){ if(p&&p.gps&&draft){ draft.lat=p.gps.lat; draft.lon=p.gps.lon; draft.gpsSrc="photo"; } }
+function paintGps(){
+  const b=$("#gpsBox"); if(!b||!draft) return;
+  const has=draft.lat!=null&&draft.lon!=null;
+  b.innerHTML='<b>📍 Lieu de trouvaille</b>'+
+    '<p class="small" style="margin:4px 0 0">'+(has?"Position "+(GPS_SRC[draft.gpsSrc]||"enregistrée")+".":"Aucune position pour l\'instant.")+'</p>'+
+    '<div class="grid2"><label class="f">Latitude<input id="eLat" inputmode="decimal" value="'+(has?draft.lat:"")+'" placeholder="45.764"></label>'+
+    '<label class="f">Longitude<input id="eLon" inputmode="decimal" value="'+(has?draft.lon:"")+'" placeholder="4.835"></label></div>'+
+    '<div class="row" style="margin-top:8px"><button class="mini" id="gHere">📍 Ma position actuelle</button>'+
+    (sample?'<button class="mini" id="gProv">🔎 Localiser la provenance</button>':'')+
+    (has?'<a class="mini" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="'+osmUrl(draft.lat,draft.lon)+'">Vérifier sur la carte</a>':'')+'</div>';
+  $("#gHere").onclick=async(e)=>{
+    e.target.disabled=true; e.target.textContent="Localisation…";
+    const h=await getHere();
+    if(h){ keepForm(); draft.lat=h.lat; draft.lon=h.lon; draft.gpsSrc="terrain"; paintGps(); }
+    else { toast("Position indisponible : autorisez la localisation ou saisissez-la."); e.target.disabled=false; e.target.textContent="📍 Ma position actuelle"; }
+  };
+  const gp=$("#gProv"); if(gp) gp.onclick=async()=>{
+    const prov=($("#eProv")||{}).value||"";
+    if(!prov.trim()){ toast("Indiquez d'abord la provenance."); return; }
+    gp.disabled=true; gp.textContent="Recherche…";
+    try{
+      const r=await aiGeocode([{id:"x",provenance:prov.trim()}]);
+      const it=r&&r.items&&r.items[0];
+      if(it&&isFinite(+it.lat)&&isFinite(+it.lon)){ keepForm(); draft.lat=+(+it.lat).toFixed(4); draft.lon=+(+it.lon).toFixed(4); draft.gpsSrc="lieu"; paintGps(); }
+      else { toast("Lieu introuvable : précisez la commune et le pays."); gp.disabled=false; gp.textContent="🔎 Localiser la provenance"; }
+    }catch(e){ toast(errMsg(e)); gp.disabled=false; gp.textContent="🔎 Localiser la provenance"; }
+  };
+}
+function keepForm(){
+  // garde les champs déjà saisis avant de redessiner le bloc position
+  if($("#eProv")) draft.provenance=$("#eProv").value;
+}
+function osmUrl(lat,lon){ return "https://www.openstreetmap.org/?mlat="+lat+"&mlon="+lon+"#map=13/"+lat+"/"+lon; }
+async function aiGeocode(list){
+  const prompt="Donne les coordonnées GPS approximatives (centre de la commune ou du site minier) de chaque lieu de provenance de minéraux ci-dessous. "+
+    "Si un lieu est trop vague ou inconnu, mets lat et lon à null. "+
+    "Réponds uniquement avec ce JSON : {\"items\":[{\"id\":\"\",\"lat\":0,\"lon\":0,\"precision\":\"site|commune|région|pays\"}]}\n\nLieux :\n"+JSON.stringify(list);
+  return sample.json(prompt,{modelTier:"quick"});
+}
+
+/* ================= Carte ================= */
+const FRANCE=[[2.55,51.09],[3.1,50.78],[4.05,50.33],[4.85,50.15],[4.8,49.8],[5.8,49.52],[6.4,49.46],[7.4,49.17],[8.2,48.98],[7.8,48.5],[7.55,47.6],[6.95,47.45],[6.1,46.6],[6.1,46.15],[6.8,46.4],[7.05,45.9],[6.65,45.1],[7.05,44.75],[6.9,44.35],[7.52,43.78],[7.25,43.7],[6.6,43.15],[5.9,43.1],[5.35,43.3],[4.6,43.4],[3.9,43.5],[3.05,43.05],[3.17,42.43],[2.5,42.35],[1.7,42.5],[0.7,42.8],[-0.3,42.8],[-1.4,43.05],[-1.78,43.37],[-1.55,43.5],[-1.25,44.6],[-1.1,45.6],[-1.2,46.15],[-2.1,46.8],[-2.2,47.27],[-3.0,47.5],[-3.4,47.7],[-4.35,47.8],[-4.75,48.35],[-4.6,48.6],[-3.9,48.7],[-3.0,48.8],[-2.0,48.65],[-1.4,48.65],[-1.6,49.2],[-1.9,49.7],[-1.25,49.7],[-1.1,49.35],[0.1,49.5],[0.6,49.87],[1.1,49.93],[1.6,50.2],[1.6,50.9],[1.85,50.95]];
+const CORSE=[[9.4,43.0],[9.55,42.6],[9.4,41.7],[9.2,41.37],[8.8,41.6],[8.6,42.0],[8.6,42.4],[9.0,42.7],[9.3,42.8]];
+const MONDE=[
+ [[-168,66],[-160,70],[-140,70],[-125,70],[-95,72],[-80,73],[-65,60],[-55,52],[-66,45],[-70,42],[-76,35],[-81,31],[-80,25],[-83,29],[-90,30],[-97,26],[-97,21],[-92,18],[-87,21],[-88,15],[-83,10],[-79,9],[-80,7],[-85,11],[-92,14],[-105,20],[-110,23],[-115,30],[-124,40],[-124,48],[-135,58],[-150,60],[-165,60]],
+ [[-80,8],[-72,12],[-60,10],[-50,0],[-35,-5],[-39,-15],[-48,-26],[-58,-38],[-65,-42],[-68,-55],[-74,-50],[-72,-35],[-70,-18],[-81,-5]],
+ [[-10,36],[-9,43],[-2,43.5],[-5,48],[2,51],[8,54],[10,58],[5,62],[15,69],[28,71],[40,67],[60,69],[80,73],[105,78],[140,72],[180,68],[180,65],[160,60],[155,58],[142,52],[140,46],[130,42],[122,40],[121,31],[118,24],[108,21],[106,10],[100,13],[103,1.5],[98,8],[92,20],[80,15],[77,8],[72,20],[66,25],[57,25],[48,30],[56,26],[59,22],[52,16],[43,12],[35,28],[34,31],[36,36],[27,37],[26,40],[23,36.5],[20,40],[13,45],[12,44],[16,38],[9,44],[3,43],[0,39],[-2,36.7],[-6,36]],
+ [[-17,21],[-17,15],[-8,4.5],[9,4],[9,-1],[13,-12],[12,-18],[18,-34],[26,-34],[33,-26],[40,-15],[40,-3],[51,11],[43,12],[32,31],[20,32],[10,37],[-6,36],[-10,30]],
+ [[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-19],[153,-26],[151,-34],[147,-38],[140,-38],[135,-35],[129,-32],[115,-34]],
+ [[-73,78],[-60,82],[-30,83],[-20,75],[-22,70],[-42,60],[-50,64],[-55,70]],
+ [[-5,50],[1.5,51.2],[1.7,52.7],[0,53.5],[-2,56],[-2,57.7],[-5,58.6],[-6.2,56.5],[-4.8,54.8],[-3,54],[-4.5,53.3],[-5,51.7]],
+ [[130,31],[135,34],[140,35],[142,40],[141,45],[140,42],[136,36],[130,34]],
+ [[43,-25],[47,-25],[50,-15],[49,-12],[44,-17]],
+ [[95,5],[106,-6],[115,-8],[120,-9],[118,-3],[110,-2],[104,1]],
+ [[166,-46],[174,-41],[178,-38],[173,-35],[172,-41],[167,-46]]
+];
+let mapView="", mapSel="";
+function openMap(){
+  const pts=items.filter(x=>x.lat!=null&&x.lon!=null);
+  if(!mapView) mapView=(pts.length&&pts.every(x=>x.lat>41&&x.lat<51.6&&x.lon>-5.5&&x.lon<10))?"france":(pts.length?"monde":"france");
+  const sans=items.filter(x=>(x.lat==null||x.lon==null)&&x.provenance);
+  const box=mapView==="france"?{w:-5.6,e:10,s:41.2,n:51.3,k:Math.cos(46*Math.PI/180)}:{w:-180,e:180,s:-58,n:84,k:1};
+  const W=600, H=Math.round(W*((box.n-box.s)/((box.e-box.w)*box.k)));
+  const P=(lon,lat)=>[((lon-box.w)*box.k/((box.e-box.w)*box.k))*W,((box.n-lat)/(box.n-box.s))*H];
+  const poly=(arr)=>'<polygon class="land" points="'+arr.map(p=>P(p[0],p[1]).map(n=>n.toFixed(1)).join(",")).join(" ")+'"/>';
+  let grat="", step=mapView==="france"?2:30;
+  for(let lo=Math.ceil(box.w/step)*step;lo<=box.e;lo+=step){ const a=P(lo,box.n), b=P(lo,box.s); grat+='<line class="grat" x1="'+a[0]+'" y1="0" x2="'+b[0]+'" y2="'+H+'"/>'; }
+  for(let la=Math.ceil(box.s/step)*step;la<=box.n;la+=step){ const a=P(box.w,la); grat+='<line class="grat" x1="0" y1="'+a[1]+'" x2="'+W+'" y2="'+a[1]+'"/>'; }
+  const land=mapView==="france"?(poly(FRANCE)+poly(CORSE)+poly(MONDE[6])):MONDE.map(poly).join("");
+  const dots=pts.map(x=>{ const p=P(x.lon,x.lat); if(p[0]<0||p[0]>W||p[1]<0||p[1]>H) return ""; const c=famColor(x.famille);
+    return '<circle class="halo" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="6" stroke="'+c+'"/>'+
+      '<circle class="pt'+(x.id===mapSel?" sel":"")+'" data-id="'+x.id+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(mapView==="france"?7:5)+'" fill="'+c+'"><title>'+esc(x.nom)+'</title></circle>'; }).join("");
+  const outside=pts.filter(x=>{const p=P(x.lon,x.lat);return p[0]<0||p[0]>W||p[1]<0||p[1]>H;}).length;
+  const sel=items.find(x=>x.id===mapSel);
+  $("#mapBody").innerHTML=
+    '<div class="seg"><button data-v="france" aria-pressed="'+(mapView==="france")+'">France</button><button data-v="monde" aria-pressed="'+(mapView==="monde")+'">Monde</button></div>'+
+    '<div id="mapBox"><svg id="mapSvg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Carte des lieux de trouvaille"><rect class="sea" width="'+W+'" height="'+H+'"/>'+grat+land+dots+'</svg></div>'+
+    '<p class="small">'+pts.length+' spécimen'+(pts.length>1?"s":"")+' localisé'+(pts.length>1?"s":"")+(outside?" · "+outside+" hors de cette vue":"")+'. Fond de carte simplifié : touchez un point puis « Voir sur la carte » pour le plan détaillé.</p>'+
+    (sel?'<div class="cand sel" style="--fam:'+famColor(sel.famille)+'"><h4><span>'+esc(sel.nom)+'</span><small>'+numStr(sel.numero)+'</small></h4><small>'+esc(sel.provenance||"")+' · '+sel.lat+', '+sel.lon+'</small>'+
+      '<div class="links"><a href="'+osmUrl(sel.lat,sel.lon)+'" target="_blank" rel="noopener">Voir sur la carte</a><a href="https://www.google.com/maps?q='+sel.lat+','+sel.lon+'" target="_blank" rel="noopener">Google Maps</a><a href="#" id="mOpen">Ouvrir la fiche</a></div></div>':'')+
+    (sans.length&&sample?'<button class="big b-map" id="mGeo" style="width:100%;margin-top:10px"><span class="ic">🔎</span> Localiser '+sans.length+' fiche'+(sans.length>1?"s":"")+' d\'après leur provenance</button>':'')+
+    (!pts.length&&!sans.length?'<div class="note">Aucun spécimen localisé. Prenez vos photos avec « Prendre une photo » pour enregistrer le lieu, ou indiquez la provenance dans les fiches.</div>':'');
+  $("#mapBody").querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ mapView=b.dataset.v; openMap(); });
+  $("#mapSvg").onclick=(e)=>{ const c=e.target.closest(".pt"); if(c){ mapSel=c.dataset.id; openMap(); } };
+  const mo=$("#mOpen"); if(mo) mo.onclick=(e)=>{ e.preventDefault(); closeSheet("shMap"); openView(sel.id); };
+  const mg=$("#mGeo"); if(mg) mg.onclick=async()=>{
+    mg.disabled=true; mg.innerHTML='<span class="gem" style="width:20px;height:20px"></span> Localisation en cours…';
+    try{
+      const r=await aiGeocode(sans.slice(0,80).map(x=>({id:x.id,provenance:x.provenance})));
+      let n=0;
+      for(const g of ((r&&r.items)||[])){
+        const x=items.find(i=>i.id===g.id);
+        if(x&&g.lat!=null&&g.lon!=null&&isFinite(+g.lat)&&isFinite(+g.lon)){ await saveItem(Object.assign({},x,{lat:+(+g.lat).toFixed(4),lon:+(+g.lon).toFixed(4),gpsSrc:"lieu"})); n++; }
+      }
+      toast(n+" fiche"+(n>1?"s":"")+" localisée"+(n>1?"s":"")+".");
+      mapView=""; setTimeout(openMap,300);
+    }catch(e){ toast(errMsg(e)); mg.disabled=false; }
+  };
+  if(!$("#shMap").classList.contains("open")) openSheet("shMap");
+}
+
+/* ================= Planche d'étiquettes A4 ================= */
+const LBL_FORMATS={
+  mini:{nom:"Mini",dim:"4,5 × 2 cm",cols:4,rows:13,w:45,h:20,gx:3,gy:1.5,desc:"52 par page, pour boîtes et socles",cont:"nom"},
+  petite:{nom:"Petite",dim:"6,35 × 3,8 cm",cols:3,rows:7,w:63.5,h:38.1,gx:2.5,gy:0,desc:"21 par page, planches autocollantes standard",cont:"essentiel"},
+  moyenne:{nom:"Moyenne",dim:"9 × 4,4 cm",cols:2,rows:6,w:92,h:44,gx:6,gy:3,desc:"12 par page, étiquette de vitrine",cont:"essentiel"},
+  grande:{nom:"Fiche complète",dim:"19 × 6,5 cm",cols:1,rows:4,w:190,h:65,gx:0,gy:4,desc:"4 par page, toutes les caractéristiques",cont:"complet"}
+};
+const LBL_CONT={nom:"Nom seul",essentiel:"Essentiel",complet:"Complet"};
+let lblFmt="moyenne", lblCont="essentiel", lblStart=1, lblPhoto=true, lblScope="tout";
+function pdfText(t){
+  const sub={"\u2080":"0","\u2081":"1","\u2082":"2","\u2083":"3","\u2084":"4","\u2085":"5","\u2086":"6","\u2087":"7","\u2088":"8","\u2089":"9","\u2070":"0","\u00b9":"1","\u00b2":"2","\u00b3":"3","\u2074":"4","\u2075":"5","\u2076":"6","\u2077":"7","\u2078":"8","\u2079":"9","\u207a":"+","\u207b":"-"};
+  return String(t||"").replace(/./g,(c)=>sub[c]!=null?sub[c]:(c.charCodeAt(0)<256||"\u2014\u2013\u2026\u00ab\u00bb\u20ac\u2019\u2018\u201c\u201d\u2022".indexOf(c)>=0?c:""));
+}
+function hexRgb(h){ const n=parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+function lblList(){
+  if(lblScope==="filtre"){ const ids=[...document.querySelectorAll("#grid .card")].map(c=>c.dataset.id); return ids.map(id=>items.find(x=>x.id===id)).filter(Boolean); }
+  return items.slice().sort((a,b)=>(a.numero||0)-(b.numero||0));
+}
+function lblFields(x,cont){
+  // [libellé, valeur] selon le niveau de détail choisi
+  const d=x.dateAcq?new Date(x.dateAcq).toLocaleDateString("fr-FR"):"";
+  if(cont==="essentiel") return [["",x.provenance||"Provenance inconnue"],["",[d,x.durete?"Mohs "+x.durete:""].filter(Boolean).join("  ·  ")]].filter(f=>f[1]);
+  return [["Provenance",x.provenance||"inconnue"],["Famille",x.famille],["Dureté",x.durete],["Système",x.systeme],["Couleur",x.couleur],["Éclat",x.eclat],["Trait",x.trait],["Densité",x.densite],
+    ["Dimensions",[x.taille?x.taille+" cm":"",x.poids?x.poids+" g":""].filter(Boolean).join(" · ")],["Obtenu",[x.mode,d].filter(Boolean).join(" le ")],
+    ["GPS",x.lat!=null&&x.lon!=null?x.lat+", "+x.lon:""],["Notes",x.notes]].filter(f=>f[1]);
+}
+function drawLabel(doc,x,X,Y,W,H,cont,withPh){
+  const s=Math.min(1.25,Math.max(.45,H/44));
+  const ins=Math.max(1,1.8*s), bw=Math.max(1.4,3*s);
+  const rgb=hexRgb(famColor(x.famille));
+  doc.setDrawColor(40,33,24); doc.setLineWidth(.3); doc.rect(X+ins,Y+ins,W-2*ins,H-2*ins);
+  doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.rect(X+ins,Y+ins,bw,H-2*ins,"F");
+  const hasPh=withPh&&x.photo&&cont!=="nom"&&H>=30;
+  const phH=H-2*ins-4*s, phW=hasPh?Math.min(W*.3,phH*.9):0;
+  const tx=X+ins+bw+2*s, right=X+W-ins-(hasPh?phW+4*s:2*s), tw=right-tx;
+  const bottom=Y+H-ins-1.2*s;
+  const nm=pdfText(x.nom);
+  doc.setTextColor(40,33,24);
+  if(cont==="nom"){
+    const avail=H-2*ins;
+    let fs=Math.min(avail*2.835*.55,34); doc.setFont("times","bold"); doc.setFontSize(fs);
+    while(doc.getTextWidth(nm)>tw&&fs>7){ fs-=.5; doc.setFontSize(fs); }
+    let lines=[nm];
+    if(doc.getTextWidth(nm)>tw){ lines=doc.splitTextToSize(nm,tw).slice(0,2); }
+    const lh=fs*.3528*1.1, cx=(tx+right)/2, cy=Y+H/2-(lines.length-1)*lh/2+fs*.3528*.35;
+    lines.forEach((l,i)=>doc.text(l,cx,cy+i*lh,{align:"center"}));
+    if(H>=18){ doc.setFont("helvetica","normal"); doc.setFontSize(Math.max(4.5,5*s)); doc.setTextColor(110,100,90); doc.text(numStr(x.numero),right,Y+ins+2.6*s+1,{align:"right"}); }
+  } else {
+    const hf=Math.max(5,7*s);
+    doc.setFont("helvetica","normal"); doc.setFontSize(hf);
+    let y=Y+ins+hf*.3528+1.4*s;
+    doc.text(doc.splitTextToSize(pdfText(meta.nom||""),tw*.7)[0]||"",tx,y);
+    doc.text(numStr(x.numero),right,y,{align:"right"});
+    y+=1.3*s; doc.setLineWidth(.2); doc.line(tx,y,right,y);
+    let fs=Math.max(9,(cont==="complet"&&W>150?20:15)*s); doc.setFont("times","bold"); doc.setFontSize(fs);
+    while(doc.getTextWidth(nm)>tw&&fs>8){ fs-=.5; doc.setFontSize(fs); }
+    y+=fs*.3528+1.6*s; doc.text(doc.splitTextToSize(nm,tw)[0],tx,y);
+    if(x.formule){ const ff=Math.max(6.5,10*s); doc.setFont("times","italic"); doc.setFontSize(ff); y+=ff*.3528+1.2*s; if(y<bottom) doc.text(doc.splitTextToSize(pdfText(x.formule),tw)[0],tx,y); }
+    const f=lblFields(x,cont);
+    const bf=cont==="complet"?Math.max(4.8,(W>150?8.2:6.6)*s):Math.max(5.5,8.5*s);
+    const lh=bf*.3528*1.3;
+    doc.setFontSize(bf); y+=1.8*s;
+    const twoCols=cont==="complet"&&W>150;
+    const colW=twoCols?(tw-4)/2:tw;
+    let col=0, cy=y;
+    const drawLine=(k,l,first,cx,yy)=>{
+      const kt=pdfText(k+" : ");
+      if(k&&first){ doc.setFont("helvetica","bold"); doc.setTextColor(110,100,90); doc.text(kt,cx,yy); const kw=doc.getTextWidth(kt); doc.setFont("helvetica","normal"); doc.setTextColor(40,33,24); doc.text(l.slice(kt.length),cx+kw,yy); }
+      else { doc.setFont("helvetica","normal"); doc.setTextColor(40,33,24); doc.text(l,cx,yy); }
+    };
+    for(const [k,v] of f){
+      const lines=doc.splitTextToSize(pdfText((k?k+" : ":"")+v),colW).slice(0,k==="Notes"?3:2);
+      if(cy+lh*lines.length>bottom+.2){
+        if(twoCols&&col===0){ col=1; cy=y; if(cy+lh*lines.length>bottom+.2) break; }
+        else break;
+      }
+      const cx=tx+col*(colW+4);
+      lines.forEach((l,i)=>{ drawLine(k,l,i===0,cx,cy+lh*.75); cy+=lh; });
+    }
+    if(hasPh){ try{ const px=X+W-ins-2*s-phW, py=Y+ins+2*s; doc.addImage(x.photo,"JPEG",px,py,phW,phH,undefined,"FAST"); doc.setDrawColor(40,33,24); doc.rect(px,py,phW,phH); }catch(e){} }
+  }
+}
+function lblPreview(x){
+  if(!x) return "";
+  const F=LBL_FORMATS[lblFmt], k=Math.min(3.2,300/F.w);
+  const W=F.w*k, H=F.h*k, c=famColor(x.famille);
+  const ph=lblPhoto&&x.photo&&lblCont!=="nom"&&F.h>=30;
+  let inner;
+  if(lblCont==="nom") inner='<div style="height:100%;display:flex;align-items:center;justify-content:center;font:700 '+Math.max(10,H*.28)+'px Georgia;text-align:center;padding:0 6px">'+esc(x.nom)+'</div>';
+  else {
+    const f=lblFields(x,lblCont);
+    inner='<div style="display:flex;justify-content:space-between;font-size:'+Math.max(7,H*.06)+'px;border-bottom:1px solid #2A2118"><span>'+esc(meta.nom)+'</span><span>'+numStr(x.numero)+'</span></div>'+
+      '<div style="font:700 '+Math.max(11,H*.15)+'px Georgia;line-height:1.2;margin-top:2px">'+esc(x.nom)+'</div>'+
+      (x.formule?'<div style="font:italic '+Math.max(8,H*.09)+'px Georgia">'+esc(x.formule)+'</div>':'')+
+      '<div style="font-size:'+Math.max(7,H*(lblCont==="complet"?.055:.075))+'px;line-height:1.3;'+(lblCont==="complet"&&F.w>150?"columns:2;":"")+'">'+f.map(p=>'<div>'+(p[0]?'<b style="color:#6E645A">'+esc(p[0])+' :</b> ':'')+esc(p[1])+'</div>').join("")+'</div>';
+  }
+  return '<div style="width:'+W+'px;height:'+H+'px;max-width:100%;background:#FFFDF6;color:#2A2118;border:1.5px solid #2A2118;border-left:'+Math.max(4,3*k)+'px solid '+c+';display:flex;overflow:hidden;margin:6px 0 4px;font-family:Figtree,sans-serif">'+
+    '<div style="flex:1;min-width:0;padding:4px 6px;overflow:hidden">'+inner+'</div>'+
+    (ph?'<img src="'+x.photo+'" alt="" style="width:'+Math.min(W*.3,H*.8)+'px;height:auto;max-height:'+(H-10)+'px;object-fit:cover;margin:5px;border:1px solid #2A2118">':'')+'</div>'+
+    '<p class="small" style="margin:0">Aperçu à l\'échelle réduite, avec « '+esc(x.nom)+' ».</p>';
+}
+function openLabels(){
+  const list=lblList(), F=LBL_FORMATS[lblFmt], per=F.cols*F.rows;
+  if(lblStart>per) lblStart=1;
+  const pages=Math.max(1,Math.ceil((list.length+lblStart-1)/per));
+  let cells=""; for(let i=1;i<=per;i++) cells+='<button data-c="'+i+'" title="Case '+i+'" class="'+(i<lblStart?"used":(i===lblStart?"start":""))+'" style="aspect-ratio:'+F.w+'/'+F.h+'">'+(per<=21?(i<lblStart?"":i):"")+'</button>';
+  $("#lblBody").innerHTML=
+    '<p class="small" style="margin-top:0">1. Taille</p>'+
+    Object.keys(LBL_FORMATS).map(k=>{const f=LBL_FORMATS[k];return '<button class="cand'+(k===lblFmt?" sel":"")+'" data-f="'+k+'" style="padding:10px 14px;margin-bottom:8px"><h4><span>'+f.nom+'</span><small>'+f.dim+'</small></h4><small>'+f.desc+'</small></button>';}).join("")+
+    '<p class="small" style="margin:10px 0 4px">2. Renseignements</p>'+
+    '<div class="seg">'+Object.keys(LBL_CONT).map(k=>'<button data-k="'+k+'" aria-pressed="'+(k===lblCont)+'">'+LBL_CONT[k]+'</button>').join("")+'</div>'+
+    '<p class="small" style="margin:-4px 0 6px">'+(lblCont==="nom"?"Le nom en grand, centré, avec le n° d\'inventaire discret.":lblCont==="essentiel"?"Nom, formule, provenance, date et dureté.":"Toutes les caractéristiques : famille, dureté, système, couleur, éclat, trait, densité, dimensions, GPS, notes. Sur les petits formats, le texte s\'arrête quand la place manque.")+'</p>'+
+    (lblCont!=="nom"&&F.h>=30?'<label class="f" style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="lPh" style="width:auto;display:inline"'+(lblPhoto?" checked":"")+'> Ajouter la photo</label>':'')+
+    '<p class="small" style="margin:10px 0 4px">3. Aperçu</p>'+lblPreview(list[0]||items[0])+
+    '<p class="small" style="margin:12px 0 4px">4. Minéraux à imprimer</p>'+
+    '<div class="seg"><button data-s="tout" aria-pressed="'+(lblScope==="tout")+'">Toute la collection</button><button data-s="filtre" aria-pressed="'+(lblScope==="filtre")+'">Sélection affichée</button></div>'+
+    '<p class="small" style="margin:6px 0 0">Planche déjà entamée ? Touchez la première case libre (case '+lblStart+').</p>'+
+    '<div class="lblgrid" style="grid-template-columns:repeat('+F.cols+',1fr);max-width:'+(F.cols===1?140:F.cols*62)+'px">'+cells+'</div>'+
+    '<button class="big b-lbl" id="lGo" style="width:100%"'+(list.length&&window.jspdf?"":" disabled")+'><span class="ic">🖨️</span> Créer le PDF ('+list.length+' étiquette'+(list.length>1?"s":"")+', '+pages+' page'+(pages>1?"s":"")+')</button>'+
+    (!window.jspdf?'<div class="note">Le module PDF ne s\'est pas chargé. Rechargez la page.</div>':'')+
+    '';
+  const body=$("#lblBody");
+  body.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{ lblFmt=b.dataset.f; lblCont=LBL_FORMATS[lblFmt].cont; lblStart=1; openLabels(); });
+  body.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ lblCont=b.dataset.k; openLabels(); });
+  body.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ lblScope=b.dataset.s; openLabels(); });
+  body.querySelectorAll(".lblgrid button").forEach(b=>b.onclick=()=>{ lblStart=+b.dataset.c; openLabels(); });
+  const lp=$("#lPh"); if(lp) lp.onchange=(e)=>{ lblPhoto=e.target.checked; openLabels(); };
+  $("#lGo").onclick=()=>makeLabelsPdf(list);
+  if(!$("#shLbl").classList.contains("open")) openSheet("shLbl");
+}
+async function makeLabelsPdf(list){
+  const F=LBL_FORMATS[lblFmt], per=F.cols*F.rows;
+  const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  const MX=(210-(F.cols*F.w+(F.cols-1)*F.gx))/2, MY=(297-(F.rows*F.h+(F.rows-1)*F.gy))/2;
+  let slot=lblStart-1;
+  list.forEach((x)=>{
+    if(slot>=per){ doc.addPage(); slot=0; }
+    const col=slot%F.cols, row=Math.floor(slot/F.cols);
+    const X=MX+col*(F.w+F.gx), Y=MY+row*(F.h+F.gy);
+    doc.setDrawColor(170); doc.setLineWidth(.1);
+    [[X,Y],[X+F.w,Y],[X,Y+F.h],[X+F.w,Y+F.h]].forEach(([a,b])=>{ doc.line(a-2,b,a-.7,b); doc.line(a+.7,b,a+2,b); doc.line(a,b-2,a,b-.7); doc.line(a,b+.7,a,b+2); });
+    drawLabel(doc,x,X,Y,F.w,F.h,lblCont,lblPhoto);
+    slot++;
+  });
+  try{
+    await saveFile({filename:"etiquettes-"+lblFmt+"-"+(meta.nom||"collection").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf",data:doc.output("blob")});
+    toast("PDF prêt : imprimez à l'échelle 100 %.");
+  }catch(e){ if(e.code!=="cancelled"&&e.code!=="declined") toast("Téléchargement impossible."); }
+}
+
+/* ================= Fiche ================= */
+function openView(id){
+  const x=items.find(i=>i.id===id); if(!x) return;
+  const props=[["Formule",x.formule],["Famille",x.famille],["Dureté (Mohs)",x.durete],["Système",x.systeme],["Couleur",x.couleur],["Éclat",x.eclat],["Trait",x.trait],["Densité",x.densite],["Gisements",x.gisements],["Taille",x.taille?x.taille+" cm":""],["Poids",x.poids?x.poids+" g":""],["Qualité",x.qualite],["Obtenu",[x.mode,x.prixAchat?eur(x.prixAchat):""].filter(Boolean).join(" · ")]].filter(p=>p[1]);
+  const v=valMid(x);
+  $("#viewBody").innerHTML=
+    '<h2 id="viewTitle">'+esc(x.nom)+'</h2>'+
+    (x.photo?'<img class="preview" src="'+x.photo+'" alt="Photo de '+esc(x.nom)+'">':'')+
+    '<div class="label" style="--fam:'+famColor(x.famille)+'"><div class="lt"><span>'+esc(meta.nom)+'</span><span>'+numStr(x.numero)+'</span></div>'+
+      '<div class="ln">'+esc(x.nom)+'</div>'+(x.formule?'<div class="lf">'+esc(x.formule)+'</div>':'')+
+      '<div class="ll">'+esc(x.provenance||"Provenance inconnue")+(x.dateAcq?" — "+esc(new Date(x.dateAcq).toLocaleDateString("fr-FR")):"")+'</div></div>'+
+    (v>0?'<div class="note">💰 Valeur estimée : <b>'+(x.valPerso>0?eur(x.valPerso)+" (votre estimation)":eur(x.valMin||0)+" – "+eur(x.valMax||0))+'</b>'+(x.valNote?'<br><span class="small">'+esc(x.valNote)+'</span>':'')+'</div>':'')+
+    '<dl class="props">'+props.map(p=>'<dt>'+p[0]+'</dt><dd>'+esc(p[1])+'</dd>').join("")+'</dl>'+
+    (x.notes?'<p>'+esc(x.notes)+'</p>':'')+
+    (x.lat!=null&&x.lon!=null?'<div class="gpsbox"><b>📍 Lieu de trouvaille</b><p class="small" style="margin:4px 0 0">'+x.lat+', '+x.lon+' — '+(GPS_SRC[x.gpsSrc]||"")+'</p><div class="links"><a href="'+osmUrl(x.lat,x.lon)+'" target="_blank" rel="noopener">OpenStreetMap</a><a href="https://www.google.com/maps?q='+x.lat+','+x.lon+'" target="_blank" rel="noopener">Google Maps</a><a href="#" id="vMap">Voir sur ma carte</a></div></div>':'')+
+    webLinks(x.nom,x.nomEn)+
+    '<label class="f">Ma propre estimation (€, laisse vide pour utiliser l\'estimation IA)<input id="vPerso" type="number" min="0" value="'+(x.valPerso||"")+'"></label>'+
+    '<p class="small" style="margin:14px 0 4px">Partager la fiche</p>'+
+    '<div class="row" style="margin-top:0">'+
+      '<a class="mini" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(ficheText(x))+'">💬 WhatsApp</a>'+
+      '<a class="mini" style="text-align:center;text-decoration:none" href="'+smsHref(ficheText(x))+'">💬 SMS</a>'+
+      '<a class="mini" style="text-align:center;text-decoration:none" href="mailto:?subject='+encodeURIComponent("Minéral : "+x.nom)+'&body='+encodeURIComponent(ficheText(x))+'">📧 E-mail</a>'+
+      '<button class="mini" id="vShare">📤 Autre application</button>'+
+      '<button class="mini" id="vCopy">📋 Copier</button>'+
+    '</div>'+
+    '<div class="row">'+
+      '<button class="big b-lbl" id="vPrint"'+(window.jspdf?"":" disabled")+'>🖨️ Imprimer la fiche</button>'+
+      '<button class="big b-ghost" id="vLabel">🏷️ Étiquette PNG</button>'+
+      '<button class="big b-ghost" id="vEdit">✏️ Modifier</button>'+
+      '<button class="big danger" id="vDel">🗑️ Supprimer</button>'+
+    '</div>';
+  $("#vPerso").onchange=async(e)=>{ const n=Object.assign({},x,{valPerso:parseFloat(e.target.value)||0}); await saveItem(n); toast("Estimation enregistrée."); };
+  $("#vEdit").onclick=()=>{ closeSheet("shView"); draft=Object.assign({},x); $("#addTitle").textContent="Modifier la fiche"; openSheet("shAdd"); stepLabel(); };
+  const bl=$("#vLabel"); if(bl) bl.onclick=()=>downloadLabel(x);
+  $("#vPrint").onclick=()=>makeFichePdf(x);
+  $("#vCopy").onclick=async()=>{
+    try{ await navigator.clipboard.writeText(ficheText(x)); toast("Fiche copiée."); }
+    catch(e){ toast("Copie refusée par le navigateur."); }
+  };
+  $("#vShare").onclick=async()=>{
+    const data={title:x.nom,text:ficheText(x)};
+    try{
+      if(x.photo&&navigator.canShare){
+        const b=await (await fetch(x.photo)).blob();
+        const f=new File([b],(x.nom||"mineral")+".jpg",{type:"image/jpeg"});
+        if(navigator.canShare({files:[f]})) data.files=[f];
+      }
+      if(!navigator.share) throw new Error("no share");
+      await navigator.share(data);
+    }catch(e){
+      if(e&&e.name==="AbortError") return;
+      try{ await navigator.clipboard.writeText(ficheText(x)); toast("Partage indisponible ici : fiche copiée."); }
+      catch(e2){ toast("Partage indisponible dans ce navigateur."); }
+    }
+  };
+  const vm=$("#vMap"); if(vm) vm.onclick=(e)=>{ e.preventDefault(); closeSheet("shView"); mapSel=x.id; mapView=(x.lat>41&&x.lat<51.6&&x.lon>-5.5&&x.lon<10)?"france":"monde"; openMap(); };
+  $("#vDel").onclick=async()=>{
+    if(!confirm("Supprimer « "+x.nom+" » de la collection ?")) return;
+    await removeItem(x.id); closeSheet("shView"); toast(x.nom+" supprimé.");
+  };
+  openSheet("shView");
+}
+
+function smsHref(t){
+  const ios=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+  return "sms:"+(ios?"&":"?")+"body="+encodeURIComponent(t);
+}
+function ficheText(x){
+  const L=[];
+  L.push("💎 "+x.nom+(x.formule?" ("+x.formule+")":""));
+  if(x.famille) L.push("Famille : "+x.famille);
+  if(x.durete) L.push("Dureté (Mohs) : "+x.durete);
+  if(x.systeme) L.push("Système : "+x.systeme);
+  if(x.couleur) L.push("Couleur : "+x.couleur);
+  if(x.eclat) L.push("Éclat : "+x.eclat);
+  if(x.trait) L.push("Trait : "+x.trait);
+  if(x.densite) L.push("Densité : "+x.densite);
+  if(x.taille||x.poids) L.push("Dimensions : "+[x.taille?x.taille+" cm":"",x.poids?x.poids+" g":""].filter(Boolean).join(" · "));
+  if(x.provenance) L.push("Provenance : "+x.provenance);
+  if(x.dateAcq) L.push([x.mode||"Obtenu",new Date(x.dateAcq).toLocaleDateString("fr-FR")].join(" le "));
+  if(x.lat!=null&&x.lon!=null) L.push("📍 "+osmUrl(x.lat,x.lon));
+  if(valMid(x)>0) L.push("Valeur estimée : "+(x.valPerso>0?eur(x.valPerso):eur(x.valMin||0)+" à "+eur(x.valMax||0)));
+  if(x.notes) L.push("");
+  if(x.notes) L.push(x.notes);
+  L.push("");
+  L.push("Collection « "+(meta.nom||"")+" » — "+numStr(x.numero));
+  return L.join("\n");
+}
+async function makeFichePdf(x){
+  if(!window.jspdf){ toast("Module PDF non chargé."); return; }
+  const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  const rgb=hexRgb(famColor(x.famille)), M=18, W=210-2*M;
+  doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.rect(0,0,210,14,"F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","normal"); doc.setFontSize(10);
+  doc.text(pdfText(meta.nom||"Ma collection"),M,9);
+  doc.text(numStr(x.numero),210-M,9,{align:"right"});
+  doc.setTextColor(30,25,45); doc.setFont("times","bold"); doc.setFontSize(30);
+  doc.text(doc.splitTextToSize(pdfText(x.nom),W)[0],M,32);
+  let y=40;
+  if(x.formule){ doc.setFont("times","italic"); doc.setFontSize(15); doc.text(pdfText(x.formule),M,y); y+=8; }
+  if(x.photo){
+    try{
+      const ratio=await new Promise((res)=>{ const im=new Image(); im.onload=()=>res((im.naturalHeight||3)/(im.naturalWidth||4)); im.onerror=()=>res(.75); im.src=x.photo; });
+      const iw=Math.min(W,120), ih=Math.min(iw*ratio,95);
+      doc.addImage(x.photo,"JPEG",M,y,iw,ih,undefined,"FAST");
+      doc.setDrawColor(60,50,40); doc.setLineWidth(.4); doc.rect(M,y,iw,ih);
+      y+=ih+8;
+    }catch(e){ y+=2; }
+  }
+  const rows=[["Famille",x.famille],["Dureté (Mohs)",x.durete],["Système cristallin",x.systeme],["Couleur",x.couleur],["Éclat",x.eclat],["Trait",x.trait],["Densité",x.densite],
+    ["Dimensions",x.taille?x.taille+" cm":""],["Poids",x.poids?x.poids+" g":""],["Provenance",x.provenance],
+    ["Date",x.dateAcq?new Date(x.dateAcq).toLocaleDateString("fr-FR"):""],["Obtenu par",x.mode],["Prix payé",x.prixAchat?eur(x.prixAchat):""],
+    ["Valeur estimée",valMid(x)>0?(x.valPerso>0?eur(x.valPerso):eur(x.valMin||0)+" – "+eur(x.valMax||0)):""],
+    ["Coordonnées GPS",x.lat!=null&&x.lon!=null?x.lat+", "+x.lon:""],["Gisements connus",x.gisements]].filter(r=>r[1]);
+  doc.setFontSize(10.5);
+  rows.forEach((r,i)=>{
+    if(y>272){ doc.addPage(); y=25; }
+    if(i%2===0){ doc.setFillColor(245,242,252); doc.rect(M,y-4.4,W,7,"F"); }
+    doc.setFont("helvetica","bold"); doc.setTextColor(105,95,130); doc.text(pdfText(r[0]),M+2,y);
+    doc.setFont("helvetica","normal"); doc.setTextColor(30,25,45);
+    doc.text(doc.splitTextToSize(pdfText(String(r[1])),W-52)[0],M+50,y);
+    y+=7;
+  });
+  if(x.notes){
+    y+=4; if(y>250){ doc.addPage(); y=25; }
+    doc.setFont("helvetica","bold"); doc.setTextColor(105,95,130); doc.text("Notes",M+2,y); y+=6;
+    doc.setFont("helvetica","normal"); doc.setTextColor(30,25,45);
+    doc.splitTextToSize(pdfText(x.notes),W-4).slice(0,12).forEach(l=>{ doc.text(l,M+2,y); y+=5.2; });
+  }
+  doc.setFontSize(8); doc.setTextColor(140,130,160);
+  doc.text(pdfText("Fiche éditée le "+new Date().toLocaleDateString("fr-FR")+"  ·  "+(meta.nom||"")),M,288);
+  try{
+    await saveFile({filename:"fiche-"+String(x.numero||0).padStart(3,"0")+"-"+(x.nom||"mineral").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf",data:doc.output("blob")});
+    toast("Fiche PDF enregistrée : ouvrez-la pour l'imprimer.");
+  }catch(e){ if(e.code!=="cancelled") toast("Enregistrement impossible."); }
+}
+async function downloadLabel(x){
+  const c=document.createElement("canvas"); c.width=900; c.height=420; const g=c.getContext("2d");
+  g.fillStyle=famColor(x.famille); g.fillRect(18,18,882,402);
+  g.fillStyle="#FFFDF6"; g.fillRect(0,0,882,402);
+  g.strokeStyle="#2A2118"; g.lineWidth=4; g.strokeRect(2,2,878,398);
+  g.fillStyle="#2A2118"; g.font="24px Georgia"; g.fillText(meta.nom||"",30,50);
+  g.textAlign="right"; g.fillText(numStr(x.numero),852,50); g.textAlign="left";
+  g.fillRect(30,66,822,2);
+  g.font="bold 64px Georgia"; g.fillText(x.nom||"",30,150);
+  g.font="italic 34px Georgia"; g.fillText(x.formule||"",30,205);
+  g.font="28px Georgia"; g.fillText((x.provenance||"Provenance inconnue"),30,280);
+  g.fillText([x.dateAcq?new Date(x.dateAcq).toLocaleDateString("fr-FR"):"",x.durete?"Dureté "+x.durete:"",x.famille||""].filter(Boolean).join("  ·  "),30,330);
+  const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+  try{ await saveFile({filename:"etiquette-"+String(x.numero).padStart(3,"0")+"-"+(x.nom||"mineral").replace(/[^a-z0-9]+/gi,"-")+".png",data:blob}); }
+  catch(e){ if(e.code!=="cancelled"&&e.code!=="declined") toast("Téléchargement impossible."); }
+}
+
+/* ================= Valeur ================= */
+function openValue(){
+  const list=items;
+  const vmin=list.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMin||0)),0);
+  const vmax=list.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMax||0)),0);
+  const paid=list.reduce((s,x)=>s+(x.prixAchat||0),0);
+  $("#valBody").innerHTML=
+    (list.length?'':'<p>Ajoutez d\'abord des minéraux.</p>')+
+    '<div id="stats2" style="display:flex;gap:10px;flex-wrap:wrap">'+
+      '<div class="stat"><b>'+(vmax>0?eur(vmin)+" – "+eur(vmax):"—")+'</b><span>valeur estimée</span></div>'+
+      '<div class="stat"><b>'+eur(paid)+'</b><span>dépensé</span></div></div>'+
+    '<p class="small">Estimation indicative basée sur l\'espèce, la taille, le poids, la qualité et la provenance que vous avez saisis. Pour une vraie expertise, faites évaluer vos plus belles pièces en bourse aux minéraux.</p>'+
+    (sample&&list.length?'<button class="big b-val" id="vRun" style="width:100%"><span class="ic">💰</span> Lancer l\'estimation ('+Math.min(list.length,60)+' spécimens)</button>':'')+
+    '<div id="vRes" style="margin-top:12px">'+list.filter(x=>valMid(x)>0).map(x=>'<div class="cand"><h4><span>'+esc(x.nom)+'</span><small>'+(x.valPerso>0?eur(x.valPerso):eur(x.valMin||0)+" – "+eur(x.valMax||0))+'</small></h4>'+(x.valNote?'<small>'+esc(x.valNote)+'</small>':'')+'</div>').join("")+'</div>';
+  const b=$("#vRun");
+  if(b) b.onclick=async()=>{
+    b.disabled=true;
+    $("#vRes").innerHTML='<div class="thinking"><div class="gem"></div><b>Estimation en cours…</b></div>';
+    try{
+      const r=await aiValue(list.slice(0,60));
+      const arr=(r&&Array.isArray(r.items))?r.items:[];
+      for(const e of arr){
+        const x=items.find(i=>i.id===e.id); if(!x) continue;
+        await saveItem(Object.assign({},x,{valMin:Math.max(0,+e.min||0),valMax:Math.max(0,+e.max||0),valNote:String(e.note||""),valDate:Date.now()}));
+      }
+      openValue();
+      if(r&&r.commentaire) $("#vRes").insertAdjacentHTML("afterbegin",'<div class="note">'+esc(r.commentaire)+'</div>');
+      toast("Estimation terminée.");
+    }catch(e){ $("#vRes").innerHTML='<div class="note">'+esc(errMsg(e))+'</div>'; b.disabled=false; }
+  };
+  openSheet("shVal");
+}
+
+/* ================= Partage de l'application ================= */
+function appUrl(){
+  let u=localStorage.getItem("mineraux-url");
+  if(u!=null) return u;
+  const h=location.href;
+  return (/^https?:/.test(h)&&h.indexOf("claude.ai")<0&&h.indexOf("anthropic")<0)?h.split("#")[0]:"";
+}
+function selfHtml(withData){
+  const root=document.documentElement.cloneNode(true);
+  ["bg","grid","chips","stats","addBody","viewBody","valBody","mapBody","lblBody","appBody"].forEach(id=>{ const e=root.querySelector("#"+id); if(e) e.innerHTML=""; });
+  root.querySelectorAll(".sheet").forEach(e=>e.classList.remove("open"));
+  const old=root.querySelector("#seed"); if(old) old.remove();
+  const q=root.querySelector("#q"); if(q) q.setAttribute("value","");
+  if(withData){
+    const sc=document.createElement("script");
+    sc.id="seed"; sc.type="application/json";
+    sc.textContent=JSON.stringify({meta,items}).replace(/</g,"\\u003c");
+    root.querySelector("body").appendChild(sc);
+  }
+  return "<!DOCTYPE html>\n"+root.outerHTML;
+}
+function appBlob(withData){ return new Blob([selfHtml(withData)],{type:"text/html"}); }
+async function saveApp(withData){
+  const name=withData?"collection-mineraux-"+(meta.nom||"ma-collection").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".html":"collection-mineraux.html";
+  try{
+    await saveFile({filename:name,data:appBlob(withData)});
+    toast(withData?"Fichier enregistré, collection incluse.":"Fichier de l'application enregistré.");
+  }catch(e){ if(e.code!=="cancelled") toast("Enregistrement impossible."); }
+}
+function drawQr(url){
+  const c=$("#qrC"); if(!c) return;
+  if(!window.QRious){ c.replaceWith(Object.assign(document.createElement("div"),{className:"note",textContent:"Le générateur de QR code ne s'est pas chargé. Rechargez la page."})); return; }
+  try{ new window.QRious({element:c,value:url,size:640,level:"M",background:"#ffffff",foreground:"#211A3A",padding:24}); }
+  catch(e){ toast("QR code impossible pour ce lien."); }
+}
+function openApp(){
+  const u=appUrl(), ok=/^https?:\/\/.+\..+/.test(u);
+  const txt="💎 Collection de minéraux — photographiez, identifiez et cataloguez vos pièces"+(ok?" :\n"+u:"");
+  $("#appBody").innerHTML=
+    '<p style="margin-top:0">L\'application est un simple fichier HTML. Vous pouvez l\'envoyer tel quel, sans aucun compte ni service.</p>'+
+    '<div class="row" style="margin-top:0">'+
+      '<button class="big b-add" id="aFile">⬇️ Enregistrer le fichier</button>'+
+      '<button class="big b-ghost" id="aFileData">📦 Fichier + ma collection</button>'+
+      '<button class="mini" id="aSendFile">📤 Envoyer le fichier</button>'+
+    '</div>'+
+    '<p class="small">Le destinataire enregistre le fichier puis l\'ouvre dans son navigateur. Hors ligne, tout fonctionne sauf l\'identification par photo et l\'estimation automatique, qui ont besoin de Claude.</p>'+
+    '<p class="small" style="margin-top:14px"><b>Lien et QR code</b> — si vous déposez ce fichier sur votre propre hébergement (Google Drive ou OneDrive en partage public, GitHub Pages, Netlify Drop, un site perso), collez l\'adresse ici pour obtenir un QR code.</p>'+
+    '<label class="f">Adresse du fichier<input id="aUrl" value="'+esc(u)+'" placeholder="https://…" spellcheck="false" inputmode="url"></label>'+
+    (ok?'<div style="background:#fff;border-radius:18px;padding:12px;display:flex;justify-content:center;border:1px solid var(--line);margin-top:12px"><canvas id="qrC" style="width:100%;max-width:240px;height:auto"></canvas></div>'+
+      '<div class="row">'+
+        '<a class="mini" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(txt)+'">💬 WhatsApp</a>'+
+        '<a class="mini" style="text-align:center;text-decoration:none" href="'+smsHref(txt)+'">💬 SMS</a>'+
+        '<a class="mini" style="text-align:center;text-decoration:none" href="mailto:?subject='+encodeURIComponent("Application collection de minéraux")+'&body='+encodeURIComponent(txt)+'">📧 E-mail</a>'+
+        '<button class="mini" id="aCopy">📋 Copier le lien</button>'+
+        '<button class="mini" id="aQr">⬇️ QR code en image</button>'+
+      '</div>':'<p class="small">Aucune adresse enregistrée : le QR code apparaîtra dès que vous en collerez une.</p>');
+  if(ok) drawQr(u);
+  $("#aFile").onclick=()=>saveApp(false);
+  $("#aFileData").onclick=()=>saveApp(true);
+  $("#aSendFile").onclick=async()=>{
+    try{
+      const f=new File([appBlob(false)],"collection-mineraux.html",{type:"text/html"});
+      if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[f]})) throw new Error("no");
+      await navigator.share({files:[f],title:"Collection de minéraux"});
+    }catch(e){
+      if(e&&e.name==="AbortError") return;
+      toast("Envoi direct impossible ici : enregistrez le fichier puis joignez-le à votre message.");
+    }
+  };
+  $("#aUrl").onchange=(e)=>{ try{ localStorage.setItem("mineraux-url",e.target.value.trim()); }catch(err){} openApp(); };
+  const ac=$("#aCopy"); if(ac) ac.onclick=async()=>{ try{ await navigator.clipboard.writeText(u); toast("Lien copié."); }catch(e){ toast("Copie refusée par le navigateur."); } };
+  const aq=$("#aQr"); if(aq) aq.onclick=async()=>{
+    const c=$("#qrC"); if(!c||!c.toBlob){ toast("QR code indisponible."); return; }
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    try{ await saveFile({filename:"qrcode-collection-mineraux.png",data:blob}); }
+    catch(e){ if(e.code!=="cancelled") toast("Enregistrement impossible."); }
+  };
+  openSheet("shApp");
+}
+
+/* ================= Sauvegarde ================= */
+async function saveFile(req){
+  if(downloads) return downloads.save(req);
+  // version autonome : choix du dossier si le navigateur le permet, sinon téléchargement classique
+  const blob=req.data instanceof Blob?req.data:new Blob([req.data]);
+  if(window.showSaveFilePicker){
+    try{
+      const h=await window.showSaveFilePicker({suggestedName:req.filename});
+      const w=await h.createWritable(); await w.write(blob); await w.close(); return {status:"saved"};
+    }catch(e){ if(e&&e.name==="AbortError") throw {code:"cancelled"}; }
+  }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=req.filename;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+  return {status:"saved"};
+}
+async function exportJson(){
+  const data=JSON.stringify({app:"mineraux",version:1,meta,items},null,1);
+  try{ await saveFile({filename:(meta.nom||"collection").replace(/[^a-z0-9]+/gi,"-")+"-sauvegarde.json",data:new Blob([data],{type:"application/json"})}); }
+  catch(e){ if(e.code!=="cancelled"&&e.code!=="declined") toast("Export impossible."); }
+}
+async function importJson(file){
+  try{
+    const r=JSON.parse(await file.text());
+    if(!r||!Array.isArray(r.items)) throw new Error("format");
+    if(!confirm("Importer "+r.items.length+" fiches ? Les fiches existantes avec le même identifiant seront remplacées.")) return;
+    if(r.meta&&r.meta.nom){ meta.nom=r.meta.nom; await saveMeta(); }
+    for(const it of r.items){ if(it&&it.id&&it.nom) await saveItem(it); }
+    toast(r.items.length+" fiches importées.");
+  }catch(e){ toast("Fichier de sauvegarde invalide."); }
+}
+
+/* ================= Événements ================= */
+$("#btnAdd").onclick=()=>{ $("#addTitle").textContent="Nouveau minéral"; startAdd(null); };
+$("#btnCam").onclick=()=>{ $("#fCam").dataset.direct="1"; $("#fCam").click(); };
+$("#btnVal").onclick=openValue;
+$("#btnApp").onclick=openApp;
+$("#btnMap").onclick=()=>{ mapView=""; openMap(); };
+$("#btnLbl").onclick=()=>{ lblStart=1; openLabels(); };
+$("#btnWa").addEventListener("click",(e)=>{ if(!items.length){ e.preventDefault(); toast("Ajoutez d'abord un minéral."); } });
+$("#collName").onclick=async()=>{
+  const n=prompt("Nom de la collection :",meta.nom||"");
+  if(n&&n.trim()){ meta.nom=n.trim().slice(0,80); render(); await saveMeta(); }
+};
+async function onFile(input){
+  const f=input.files&&input.files[0]; const direct=input.dataset.direct==="1";
+  input.dataset.direct=""; input.value="";
+  if(!f) return;
+  try{
+    const p=await prepPhoto(f);
+    if(direct||!draft){ $("#addTitle").textContent="Nouveau minéral"; startAdd(p); }
+    else { draft.photo=p.thumb; draft._blob=p.blob; setPhotoGps(p); stepIdentify(); }
+    if(input.id==="fCam" && draft && draft.lat==null){
+      // mode terrain : position du téléphone au moment de la prise de vue
+      const here=await getHere();
+      if(here && draft && draft.lat==null){ draft.lat=here.lat; draft.lon=here.lon; draft.gpsSrc="terrain"; paintGps(); toast("📍 Position du lieu de trouvaille enregistrée"); }
+    }
+  }catch(e){ toast("Photo illisible. Essayez un autre fichier."); }
+}
+$("#fCam").onchange=()=>onFile($("#fCam"));
+$("#fGal").onchange=()=>onFile($("#fGal"));
+$("#fImport").onchange=()=>{ const f=$("#fImport").files[0]; $("#fImport").value=""; if(f) importJson(f); };
+$("#bgPick").innerHTML=Object.keys(BGS).map(k=>'<option value="'+k+'"'+(k===bgTheme?" selected":"")+'>'+BGS[k]+'</option>').join("");
+$("#bgPick").onchange=(e)=>{ bgTheme=e.target.value; try{ localStorage.setItem("mineraux-bg",bgTheme); }catch(err){} paintBg(); $("#bgPick").value=bgTheme; };
+$("#q").oninput=render; $("#sort").onchange=render;
+$("#chips").onclick=(e)=>{ const b=e.target.closest(".chip"); if(!b) return; famFilter=b.dataset.fam; render(); };
+$("#grid").onclick=(e)=>{ const c=e.target.closest(".card"); if(c) openView(c.dataset.id); };
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeSheet(b.dataset.close));
+document.querySelectorAll(".sheet").forEach(s=>s.addEventListener("click",(e)=>{ if(e.target===s) closeSheet(s.id); }));
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") document.querySelectorAll(".sheet.open").forEach(s=>closeSheet(s.id)); });
+
+function footer(){
+  const parts=[db?"Collection enregistrée en ligne avec cette page.":"Collection enregistrée sur cet appareil."];
+  let html=esc(parts.join(" "));
+  html+=' <a href="#" id="lnkExp">Exporter une sauvegarde</a> · ';
+  html+=' <a href="#" id="lnkImp">Importer</a>';
+  $("#modeInfo").innerHTML=html;
+  const le=$("#lnkExp"); if(le) le.onclick=(e)=>{e.preventDefault();exportJson();};
+  $("#lnkImp").onclick=(e)=>{e.preventDefault();$("#fImport").click();};
+}
+
+/* ================= Démarrage ================= */
+lsLoad(); seedLoad(); render(); footer(); paintBg();
+(async function boot(){
+  const C=window.claude;
+  if(!C||typeof C.use!=="function") return;
+  try{
+    const [d,s,dl]=await Promise.all([C.use("db"),C.use("sample"),C.use("downloads")]);
+    downloads=dl||null;
+    if(s){ sample=s; try{ const lim=await s.limits(); canImages=!!(lim&&lim.images); }catch(e){ canImages=false; } }
+    if(d){
+      db=d;
+      db.collection("specimens").onSnapshot((snap)=>{
+        items=snap.docs.map(doc=>Object.assign({},doc.data(),{id:doc.id}));
+        render(); if(bgTheme==="photos") paintBg();
+      },()=>{ toast("Synchronisation interrompue : rechargez la page."); });
+      db.doc("meta/info").onSnapshot((snap)=>{
+        if(snap.exists){ meta=Object.assign({},snap.data()); render(); }
+      },()=>{});
+    }
+    footer();
+  }catch(e){ /* mode local */ }
+})();
+
+})();
+</script>
+</body>
+</html>
