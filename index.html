@@ -90,6 +90,7 @@ img{max-width:100%}
 .b-cam{background:linear-gradient(135deg,#2A67E8,#1C45B8)}
 .b-val{background:linear-gradient(135deg,#F5B400,#E08A00);color:#2B1B00}
 .b-wa{background:linear-gradient(135deg,#25D366,#128C4A)}
+.b-geo{background:linear-gradient(135deg,#2F9E6E,#1C6B57)}
 .b-col{background:linear-gradient(135deg,#5B49C9,#2E2196)}
 .b-map{background:linear-gradient(135deg,#12B38A,#0A7F63)}
 .b-lbl{background:linear-gradient(135deg,#EE5A86,#C23064)}
@@ -255,7 +256,7 @@ textarea#rawBox{width:100%;min-height:140px;font-family:ui-monospace,monospace;f
     <button class="big b-map" id="btnMap"><span class="ic">🗺️</span> Carte des trouvailles</button>
     <button class="big b-lbl" id="btnLbl"><span class="ic">🏷️</span> Planche d'étiquettes</button>
     <button class="big b-ghost" id="btnApp"><span class="ic">📲</span> Partager l'application</button>
-    <a class="big b-wa" id="btnWa" href="#" target="_blank" rel="noopener"><span class="ic">💬</span> Partager WhatsApp</a>
+    <a class="big b-geo" id="btnGeo" href="https://www.geodine.fr/" target="_blank" rel="noopener"><span class="ic">🌍</span> Geodine.fr</a>
   </nav>
 
   <div id="tools">
@@ -496,7 +497,7 @@ function render(){
   }).join("");
   lastBorn=null;
   $("#empty").classList.toggle("hide",items.length>0);
-  $("#btnWa").href="https://wa.me/?text="+encodeURIComponent(shareText());
+
 }
 
 function paintCrystal(){
@@ -504,19 +505,6 @@ function paintCrystal(){
   const cols=[...new Set(items.map(x=>famColor(x.famille)))];
   const base=cols.length?cols:["#9D6BF5","#7B3FE4","#5A26B8","#8C55EE"];
   ["f1","f2","f3","f4"].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.setAttribute("fill",base[i%base.length]); });
-}
-
-function shareText(){
-  const lines=["💎 "+(meta.nom||"Ma collection")+" — "+items.length+" minéral"+(items.length>1?"aux":"")];
-  items.slice().sort((a,b)=>(a.numero||0)-(b.numero||0)).forEach(x=>{
-    lines.push("• "+numStr(x.numero)+" "+x.nom+(x.provenance?" ("+x.provenance+")":"")+(valMid(x)>0?" ≈ "+eur(valMid(x)):""));
-  });
-  const vmin=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMin||0)),0);
-  const vmax=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMax||0)),0);
-  if(vmax>0) lines.push("","Valeur estimée : "+(vmin===vmax?eur(vmin):eur(vmin)+" à "+eur(vmax)));
-  let t=lines.join("\n");
-  if(t.length>3500) t=t.slice(0,3500)+"\n…";
-  return t;
 }
 
 /* ================= Fond minéral ================= */
@@ -1156,6 +1144,7 @@ function openView(id){
       '<a class="mini" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(ficheText(x))+'">💬 WhatsApp</a>'+
       '<a class="mini" style="text-align:center;text-decoration:none" href="'+smsHref(ficheText(x))+'">💬 SMS</a>'+
       '<a class="mini" style="text-align:center;text-decoration:none" href="mailto:?subject='+encodeURIComponent("Minéral : "+x.nom)+'&body='+encodeURIComponent(ficheText(x))+'">📧 E-mail</a>'+
+      '<button class="mini" id="vPdfShare">📄 Envoyer la fiche PDF</button>'+
       '<button class="mini" id="vShare">📤 Autre application</button>'+
       '<button class="mini" id="vCopy">📋 Copier</button>'+
       (x.photo?'<button class="mini" id="vLens">🔎 Google Lens</button>':'')+
@@ -1170,6 +1159,7 @@ function openView(id){
   $("#vEdit").onclick=()=>{ closeSheet("shView"); draft=Object.assign({},x); $("#addTitle").textContent="Modifier la fiche"; openSheet("shAdd"); stepLabel(); };
   const bl=$("#vLabel"); if(bl) bl.onclick=()=>downloadLabel(x);
   $("#vPrint").onclick=()=>makeFichePdf(x);
+  $("#vPdfShare").onclick=(e)=>shareFichePdf(x,e.currentTarget);
   const vl=$("#vLens"); if(vl) vl.onclick=()=>lensSearch(x.photo,vl);
   $("#vCopy").onclick=async()=>{
     try{ await navigator.clipboard.writeText(ficheText(x)); toast("Fiche copiée."); }
@@ -1216,7 +1206,6 @@ function ficheText(x){
   if(x.taille||x.poids) L.push("Dimensions : "+[x.taille?x.taille+" cm":"",x.poids?x.poids+" g":""].filter(Boolean).join(" · "));
   if(x.provenance) L.push("Provenance : "+x.provenance);
   if(x.dateAcq) L.push([x.mode||"Obtenu",new Date(x.dateAcq).toLocaleDateString("fr-FR")].join(" le "));
-  if(x.lat!=null&&x.lon!=null) L.push("📍 "+osmUrl(x.lat,x.lon));
   if(valMid(x)>0) L.push("Valeur estimée : "+(x.valPerso>0?eur(x.valPerso):eur(x.valMin||0)+" à "+eur(x.valMax||0)));
   if(x.notes) L.push("");
   if(x.notes) L.push(x.notes);
@@ -1224,8 +1213,33 @@ function ficheText(x){
   L.push("Collection « "+(meta.nom||"")+" » — "+numStr(x.numero));
   return L.join("\n");
 }
+async function shareFichePdf(x,btn){
+  if(!window.jspdf){ toast("Module PDF non chargé : vérifiez la connexion."); return; }
+  if(btn){ btn.disabled=true; btn.dataset.t=btn.textContent; btn.textContent="Préparation…"; }
+  const fin=()=>{ if(btn){ btn.disabled=false; btn.textContent=btn.dataset.t||"📄 Partager la fiche PDF"; } };
+  try{
+    const doc=await buildFichePdf(x);
+    const name=ficheName(x);
+    const f=new File([doc.output("blob")],name,{type:"application/pdf"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]})){
+      try{ await navigator.share({files:[f],title:x.nom}); fin(); return; }
+      catch(e){ if(e&&e.name==="AbortError"){ fin(); return; } }
+    }
+    await saveFile({filename:name,data:f});
+    toast("Fiche PDF enregistrée : joignez-la à votre message.");
+  }catch(e){ if(!e||e.code!=="cancelled") toast("Partage du PDF impossible ici."); }
+  fin();
+}
+function ficheName(x){ return "fiche-"+String(x.numero||0).padStart(3,"0")+"-"+(x.nom||"mineral").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf"; }
 async function makeFichePdf(x){
-  if(!window.jspdf){ toast("Module PDF non chargé."); return; }
+  if(!window.jspdf){ toast("Module PDF non chargé : vérifiez la connexion."); return; }
+  try{
+    const doc=await buildFichePdf(x);
+    await saveFile({filename:ficheName(x),data:doc.output("blob")});
+    toast("Fiche PDF enregistrée : ouvrez-la pour l'imprimer.");
+  }catch(e){ if(!e||e.code!=="cancelled") toast("Enregistrement impossible."); }
+}
+async function buildFichePdf(x){
   const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
   const rgb=hexRgb(famColor(x.famille)), M=18, W=210-2*M;
   doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.rect(0,0,210,14,"F");
@@ -1267,10 +1281,7 @@ async function makeFichePdf(x){
   }
   doc.setFontSize(8); doc.setTextColor(140,130,160);
   doc.text(pdfText("Fiche éditée le "+new Date().toLocaleDateString("fr-FR")+"  ·  "+(meta.nom||"")),M,288);
-  try{
-    await saveFile({filename:"fiche-"+String(x.numero||0).padStart(3,"0")+"-"+(x.nom||"mineral").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf",data:doc.output("blob")});
-    toast("Fiche PDF enregistrée : ouvrez-la pour l'imprimer.");
-  }catch(e){ if(e.code!=="cancelled") toast("Enregistrement impossible."); }
+  return doc;
 }
 async function downloadLabel(x){
   const c=document.createElement("canvas"); c.width=900; c.height=420; const g=c.getContext("2d");
@@ -1406,12 +1417,26 @@ function openSave(){
       const t=$("#rawBox"); t.value=txt; t.focus(); t.select();
     }
   };
-  $("#sSend").onclick=async()=>{
+  $("#sSend").onclick=async(ev)=>{
+    const btn=ev.currentTarget; btn.disabled=true; const t0=btn.textContent; btn.textContent="Préparation…";
+    const blob=backupBlob(null), nom=backupName(null);
+    const essais=[
+      ()=>new File([blob],nom,{type:"application/json"}),
+      ()=>new File([blob],nom.replace(/\.json$/,".txt"),{type:"text/plain"})
+    ];
     try{
-      const f=new File([backupBlob(null)],backupName(null),{type:"application/json"});
-      if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[f]})) throw new Error("no");
-      await navigator.share({files:[f],title:"Sauvegarde minéraux"});
-    }catch(e){ if(e&&e.name==="AbortError") return; toast("Envoi direct impossible : enregistrez le fichier puis joignez-le."); }
+      if(navigator.share&&navigator.canShare){
+        for(const mk of essais){
+          const f=mk();
+          if(!navigator.canShare({files:[f]})) continue;
+          try{ await navigator.share({files:[f],title:"Sauvegarde minéraux"}); btn.disabled=false; btn.textContent=t0; return; }
+          catch(e){ if(e&&e.name==="AbortError"){ btn.disabled=false; btn.textContent=t0; return; } }
+        }
+      }
+      await saveFile({filename:nom,data:blob});
+      toast("Ce navigateur n'envoie pas les fichiers directement : sauvegarde enregistrée, joignez-la à votre message.");
+    }catch(e){ if(!e||e.code!=="cancelled") toast("Envoi impossible : utilisez « Tout sauvegarder » puis joignez le fichier."); }
+    btn.disabled=false; btn.textContent=t0;
   };
   openSheet("shSave");
 }
@@ -1587,7 +1612,7 @@ $("#btnVal").onclick=openValue;
 $("#btnApp").onclick=openApp;
 $("#btnMap").onclick=()=>{ mapView=""; openMap(); };
 $("#btnLbl").onclick=()=>{ lblStart=1; openLabels(); };
-$("#btnWa").addEventListener("click",(e)=>{ if(!items.length){ e.preventDefault(); toast("Ajoutez d'abord un minéral."); } });
+
 $("#collName").onclick=openCols;
 $("#btnCols").onclick=openCols;
 $("#druse").onclick=openSave;
