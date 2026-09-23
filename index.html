@@ -50,7 +50,7 @@ img{max-width:100%}
 .wrap{max-width:1040px;margin:0 auto;padding:0 18px 120px}
 
 /* ---------- En-tête ---------- */
-#hero{position:relative;padding:28px 0 18px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+#hero{position:relative;padding:30px 0 22px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
 #crystal{width:92px;height:110px;filter:drop-shadow(0 12px 18px rgba(123,63,228,.35))}
 #crystal .f{transition:fill .6s}
 @media (prefers-reduced-motion:no-preference){
@@ -61,7 +61,7 @@ img{max-width:100%}
 @keyframes shine{0%,100%{opacity:0}45%{opacity:.85}60%{opacity:0}}
 #collName{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,5.5vw,2.6rem);line-height:1.05;margin:0;letter-spacing:-.01em;background:none;border:0;padding:0;text-align:left;border-bottom:2px dashed transparent}
 #collName:hover{border-bottom-color:var(--line)}
-#collSub{color:var(--muted);margin:6px 0 0;font-size:.98rem}
+#collSub{color:var(--muted);margin:6px 0 0;font-size:.92rem;overflow-wrap:anywhere}
 #hero>div>*,#tools,#chips{position:relative}
 #collName,#collSub{text-shadow:0 1px 10px var(--bg),0 0 22px var(--bg)}
 .small{text-shadow:0 1px 8px var(--bg)}
@@ -80,6 +80,7 @@ img{max-width:100%}
 .b-cam{background:linear-gradient(135deg,#2A67E8,#1C45B8)}
 .b-val{background:linear-gradient(135deg,#F5B400,#E08A00);color:#2B1B00}
 .b-wa{background:linear-gradient(135deg,#25D366,#128C4A)}
+.b-col{background:linear-gradient(135deg,#5B49C9,#2E2196)}
 .b-map{background:linear-gradient(135deg,#12B38A,#0A7F63)}
 .b-lbl{background:linear-gradient(135deg,#EE5A86,#C23064)}
 .b-ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:none}
@@ -160,6 +161,22 @@ dl.props dd{margin:0}
 .toast.on{transform:translateX(-50%) translateY(0)}
 .danger{background:linear-gradient(135deg,#F0476E,#C42454)}
 .hide{display:none!important}
+#collName::after{content:" ▾";font-size:.6em;vertical-align:middle;color:var(--muted)}
+#druse{position:absolute;top:4px;right:0;z-index:5;width:66px;height:60px;border:0;background:none;padding:0;filter:drop-shadow(0 8px 14px rgba(76,40,160,.4));transition:transform .18s}
+#druse::after{content:"Sauvegarder";position:absolute;left:50%;transform:translateX(-50%);bottom:-15px;font-size:.66rem;font-weight:700;color:var(--ink);white-space:nowrap;text-shadow:0 1px 6px var(--bg),0 0 12px var(--bg)}
+#collName,#collSub{padding-right:76px}
+@media (min-width:700px){#collName,#collSub{padding-right:0}#druse{top:10px}}
+#druse svg{width:100%;height:100%;display:block}
+#druse:hover{transform:translateY(-3px) scale(1.04)}
+#druse:active{transform:scale(.92)}
+@media (prefers-reduced-motion:no-preference){#druse.win{animation:gleam .8s ease}}
+@keyframes gleam{0%{transform:scale(1)}35%{transform:scale(1.14) rotate(-4deg)}100%{transform:scale(1)}}
+.colrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:10px 12px;margin-bottom:8px}
+.colrow.on{border-color:var(--amethyste);box-shadow:0 0 0 4px rgba(123,63,228,.16)}
+.colrow .nm{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0}
+.colrow .nm b{font-family:var(--display);font-size:1rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.colrow .nm span{font-size:.82rem;color:var(--muted)}
+.colrow .ic{border:1px solid var(--line);background:var(--bg);border-radius:10px;width:36px;height:36px;font-size:1rem}
 /* Carte */
 #mapBox{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative}
 #mapSvg{display:block;width:100%;height:auto;touch-action:manipulation}
@@ -199,13 +216,24 @@ dl.props dd{margin:0}
       <polygon points="46,2 34,24 46,34" fill="#fff" class="shine" opacity="0"/>
     </svg>
     <div>
-      <button id="collName" title="Renommer la collection">Ma collection</button>
+      <button id="collName" title="Changer de collection">Ma collection</button>
       <p id="collSub">Touchez le titre pour renommer votre collection.</p>
       <div id="stats"></div>
     </div>
+    <button id="druse" title="Sauvegarder mes collections" aria-label="Sauvegarder mes collections">
+  <svg viewBox="0 0 120 100" aria-hidden="true">
+    <polygon points="18,100 18,64 30,44 42,64 42,100" fill="#b9a6ef"/><polygon points="30,44 42,64 42,100 52,92 52,58" fill="#8d6fe0"/>
+    <polygon points="44,100 44,50 58,22 72,50 72,100" fill="#d8ccff"/><polygon points="58,22 72,50 72,100 84,90 84,44" fill="#a284ea"/>
+    <polygon points="74,100 74,70 86,52 98,70 98,100" fill="#c3b1f2"/><polygon points="86,52 98,70 98,100 106,94 106,66" fill="#8566dd"/>
+    <polygon points="6,100 6,78 16,62 24,78 24,100" fill="#e6deff"/>
+    <rect x="0" y="92" width="120" height="8" rx="3" fill="#5b3fb5"/>
+    <polygon points="58,22 52,40 64,40" fill="#ffffff" opacity=".55"/>
+  </svg>
+</button>
   </header>
 
   <nav id="actions">
+    <button class="big b-col" id="btnCols"><span class="ic">🗂️</span> <span id="btnColsTxt">Mes collections</span></button>
     <button class="big b-add" id="btnAdd"><span class="ic">➕</span> Ajouter un minéral</button>
     <button class="big b-cam" id="btnCam"><span class="ic">📷</span> Prendre une photo</button>
     <button class="big b-val" id="btnVal"><span class="ic">💰</span> Estimer la valeur</button>
@@ -284,6 +312,24 @@ dl.props dd{margin:0}
   </div>
 </div>
 
+<!-- Collections -->
+<div class="sheet" id="shCols" role="dialog" aria-modal="true" aria-labelledby="colsTitle">
+  <div class="box">
+    <button class="x" data-close="shCols" aria-label="Fermer">✕</button>
+    <h2 id="colsTitle">Choisir une collection</h2>
+    <div id="colsBody"></div>
+  </div>
+</div>
+
+<!-- Sauvegarde -->
+<div class="sheet" id="shSave" role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+  <div class="box">
+    <button class="x" data-close="shSave" aria-label="Fermer">✕</button>
+    <h2 id="saveTitle">Sauvegarder</h2>
+    <div id="saveBody"></div>
+  </div>
+</div>
+
 <!-- Partage de l'application -->
 <div class="sheet" id="shApp" role="dialog" aria-modal="true" aria-labelledby="appTitle">
   <div class="box">
@@ -310,8 +356,9 @@ const FAMILLES = {
 };
 const QUALITES = ["Commun","Bon","Très beau","Exceptionnel"];
 
+let allItems = [];
 let items = [];
-let meta = { nom:"Ma collection" };
+let meta = { nom:"Ma collection", cols:null, cur:"" };
 let famFilter = "";
 let db = null, sample = null, downloads = null, canImages = false;
 let lastBorn = null;
@@ -329,30 +376,49 @@ function toast(msg){
 /* ================= Stockage ================= */
 const LS_KEY="mineraux-v1";
 function lsLoad(){
-  try{ const r=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(r){items=r.items||[];meta=r.meta||meta;} }catch(e){}
+  try{ const r=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(r){ allItems=r.items||[]; meta=r.meta||meta; } }catch(e){}
+  migrate();
 }
+function migrate(){
+  // une seule collection avant la v2 : on la reconstruit
+  if(!Array.isArray(meta.cols)||!meta.cols.length){
+    meta.cols=[{id:"c1",nom:meta.nom||"Ma collection",createdAt:Date.now()}];
+    meta.cur="c1";
+  }
+  if(!meta.cols.some(c=>c.id===meta.cur)) meta.cur=meta.cols[0].id;
+  allItems.forEach(x=>{ if(!x.collId) x.collId=meta.cols[0].id; });
+  meta.nom=colName();
+  refreshItems();
+}
+function colName(id){
+  const c=(meta.cols||[]).find(c=>c.id===(id||meta.cur));
+  return c?c.nom:"Ma collection";
+}
+function colCount(id){ return allItems.filter(x=>x.collId===id).length; }
+function refreshItems(){ items=allItems.filter(x=>x.collId===meta.cur); }
 function seedLoad(){
   const el=document.getElementById("seed");
-  if(!el||items.length) return;
+  if(!el||allItems.length) return;
   try{
     const r=JSON.parse(el.textContent);
-    if(r&&Array.isArray(r.items)&&r.items.length){ items=r.items; if(r.meta&&r.meta.nom) meta=r.meta; lsSave(); }
+    if(r&&Array.isArray(r.items)&&r.items.length){ allItems=r.items; if(r.meta) meta=r.meta; migrate(); lsSave(); }
   }catch(e){}
 }
 function lsSave(){
-  try{ localStorage.setItem(LS_KEY,JSON.stringify({items,meta})); }catch(e){ toast("Stockage local plein : exportez une sauvegarde."); }
+  try{ localStorage.setItem(LS_KEY,JSON.stringify({items:allItems,meta})); }catch(e){ toast("Stockage local plein : exportez une sauvegarde."); }
 }
 async function saveItem(it){
+  if(!it.collId) it.collId=meta.cur;
   if(db){
     try{ await db.collection("specimens").doc(it.id).set(JSON.parse(JSON.stringify(it))); return true; }
     catch(e){ toast(e.code==="quota_exceeded"?"Collection pleine : supprimez des fiches.":"Enregistrement refusé ("+(e.code||"erreur")+")."); return false; }
   }
-  const i=items.findIndex(x=>x.id===it.id); if(i>=0) items[i]=it; else items.push(it);
-  lsSave(); render(); return true;
+  const i=allItems.findIndex(x=>x.id===it.id); if(i>=0) allItems[i]=it; else allItems.push(it);
+  refreshItems(); lsSave(); render(); return true;
 }
 async function removeItem(id){
   if(db){ try{ await db.collection("specimens").doc(id).delete(); }catch(e){ toast("Suppression refusée."); return; } }
-  else { items=items.filter(x=>x.id!==id); lsSave(); render(); }
+  else { allItems=allItems.filter(x=>x.id!==id); refreshItems(); lsSave(); render(); }
 }
 async function saveMeta(){
   if(db){ try{ await db.doc("meta/info").set(JSON.parse(JSON.stringify(meta))); }catch(e){ toast("Nom non enregistré."); } }
@@ -370,8 +436,12 @@ function valMid(x){
 }
 
 function render(){
-  $("#collName").textContent=meta.nom||"Ma collection";
-  document.title=(meta.nom||"Ma collection")+" · minéraux";
+  meta.nom=colName();
+  $("#collName").textContent=meta.nom;
+  document.title=meta.nom+" · minéraux";
+  const nbc=(meta.cols||[]).length;
+  $("#btnColsTxt").textContent=nbc>1?("Collections ("+nbc+")"):"Mes collections";
+  $("#collSub").textContent=nbc>1?("Collection "+((meta.cols||[]).findIndex(c=>c.id===meta.cur)+1)+"/"+nbc+" — touchez le titre pour changer."):"Touchez le titre pour renommer ou en créer une autre.";
   const tot=items.reduce((s,x)=>s+valMid(x),0);
   const vmin=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMin||0)),0);
   const vmax=items.reduce((s,x)=>s+(x.valPerso>0?x.valPerso:(x.valMax||0)),0);
@@ -1188,6 +1258,106 @@ function openValue(){
   openSheet("shVal");
 }
 
+/* ================= Collections ================= */
+function openCols(){
+  $("#colsBody").innerHTML=
+    (meta.cols||[]).map(c=>{
+      const n=colCount(c.id), v=allItems.filter(x=>x.collId===c.id).reduce((t,x)=>t+valMid(x),0);
+      return '<div class="colrow'+(c.id===meta.cur?" on":"")+'" data-id="'+c.id+'">'+
+        '<button class="nm" data-act="go"><b>'+esc(c.nom)+'</b><span>'+n+' spécimen'+(n>1?"s":"")+(v>0?" · ≈ "+eur(v):"")+'</span></button>'+
+        '<button class="ic" data-act="ren" title="Renommer">✏️</button>'+
+        '<button class="ic" data-act="del" title="Supprimer">🗑️</button></div>';
+    }).join("")+
+    '<div class="row"><button class="big b-add" id="cNew">➕ Nouvelle collection</button>'+
+    (items.length?'<button class="big b-ghost" id="cMove">📦 Déplacer des fiches</button>':'')+'</div>'+
+    '<p class="small">Chaque collection a ses propres numéros d\'inventaire, sa carte, ses étiquettes et sa valeur.</p>';
+  $("#colsBody").onclick=async(e)=>{
+    const row=e.target.closest(".colrow"); if(!row) return;
+    const id=row.dataset.id, act=(e.target.closest("[data-act]")||{}).dataset;
+    if(!act) return;
+    if(act.act==="go"){ meta.cur=id; meta.nom=colName(); refreshItems(); famFilter=""; render(); await saveMeta(); closeSheet("shCols"); toast("Collection « "+colName()+" »"); if(bgTheme==="photos") paintBg(); return; }
+    if(act.act==="ren"){
+      const n=prompt("Nom de la collection :",colName(id));
+      if(n&&n.trim()){ meta.cols=meta.cols.map(c=>c.id===id?Object.assign({},c,{nom:n.trim().slice(0,80)}):c); meta.nom=colName(); render(); await saveMeta(); openCols(); }
+      return;
+    }
+    if(act.act==="del"){
+      if(meta.cols.length<2){ toast("Gardez au moins une collection."); return; }
+      const n=colCount(id);
+      if(!confirm("Supprimer « "+colName(id)+" »"+(n?" et ses "+n+" fiche"+(n>1?"s":""):"")+" ? Pensez à sauvegarder avant.")) return;
+      for(const x of allItems.filter(x=>x.collId===id)) await removeItem(x.id);
+      meta.cols=meta.cols.filter(c=>c.id!==id);
+      if(meta.cur===id) meta.cur=meta.cols[0].id;
+      meta.nom=colName(); refreshItems(); render(); await saveMeta(); openCols();
+    }
+  };
+  $("#cNew").onclick=async()=>{
+    const n=prompt("Nom de la nouvelle collection :","");
+    if(!n||!n.trim()) return;
+    const id="c"+uid();
+    meta.cols=(meta.cols||[]).concat([{id,nom:n.trim().slice(0,80),createdAt:Date.now()}]);
+    meta.cur=id; meta.nom=colName(); refreshItems(); famFilter=""; render(); await saveMeta();
+    closeSheet("shCols"); toast("Collection « "+n.trim()+" » créée.");
+  };
+  const cm=$("#cMove"); if(cm) cm.onclick=async()=>{
+    const autres=meta.cols.filter(c=>c.id!==meta.cur);
+    if(!autres.length){ toast("Créez d\'abord une autre collection."); return; }
+    const cible=autres.length===1?autres[0]:autres[Math.max(0,parseInt(prompt("Déplacer vers :\n"+autres.map((c,i)=>(i+1)+". "+c.nom).join("\n"),"1"),10)-1)];
+    if(!cible) return;
+    const q=prompt("Numéros d\'inventaire à déplacer vers « "+cible.nom+" » (ex : 3,5,7 ou vide pour tout) :","");
+    if(q===null) return;
+    const nums=q.trim()?q.split(/[^0-9]+/).filter(Boolean).map(Number):null;
+    const lot=items.filter(x=>!nums||nums.indexOf(x.numero)>=0);
+    if(!lot.length){ toast("Aucune fiche correspondante."); return; }
+    for(const x of lot) await saveItem(Object.assign({},x,{collId:cible.id}));
+    refreshItems(); render(); openCols(); toast(lot.length+" fiche"+(lot.length>1?"s":"")+" déplacée"+(lot.length>1?"s":"")+".");
+  };
+  openSheet("shCols");
+}
+
+/* ================= Sauvegarde (bouton druse) ================= */
+function openSave(){
+  const tot=allItems.length, nb=(meta.cols||[]).length;
+  $("#saveBody").innerHTML=
+    '<p style="margin-top:0">'+tot+' fiche'+(tot>1?"s":"")+' dans '+nb+' collection'+(nb>1?"s":"")+'. Une sauvegarde est un fichier que vous gardez au chaud : photos, fiches et positions comprises.</p>'+
+    '<div class="row" style="margin-top:0">'+
+      '<button class="big b-add" id="sAll">💾 Tout sauvegarder</button>'+
+      '<button class="big b-ghost" id="sOne">📁 Sauvegarder « '+esc(colName())+' »</button>'+
+    '</div>'+
+    '<div class="row">'+
+      '<button class="big b-ghost" id="sImp">📥 Importer une sauvegarde</button>'+
+      '<button class="mini" id="sSend">📤 Envoyer la sauvegarde</button>'+
+    '</div>'+
+    '<p class="small">À l\'import, une sauvegarde retrouve ses collections d\'origine. Les fiches portant le même identifiant sont remplacées, les autres s\'ajoutent.</p>';
+  $("#sAll").onclick=()=>doExport(null);
+  $("#sOne").onclick=()=>doExport(meta.cur);
+  $("#sImp").onclick=()=>$("#fImport").click();
+  $("#sSend").onclick=async()=>{
+    try{
+      const f=new File([backupBlob(null)],backupName(null),{type:"application/json"});
+      if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[f]})) throw new Error("no");
+      await navigator.share({files:[f],title:"Sauvegarde minéraux"});
+    }catch(e){ if(e&&e.name==="AbortError") return; toast("Envoi direct impossible : enregistrez le fichier puis joignez-le."); }
+  };
+  openSheet("shSave");
+}
+function backupData(colId){
+  const cols=colId?(meta.cols||[]).filter(c=>c.id===colId):(meta.cols||[]);
+  const its=colId?allItems.filter(x=>x.collId===colId):allItems;
+  return {app:"mineraux",version:2,meta:{nom:colName(colId||meta.cur),cols,cur:colId||meta.cur},items:its};
+}
+function backupName(colId){
+  return "mineraux-"+(colId?colName(colId):"toutes-collections").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+"-"+new Date().toISOString().slice(0,10)+".json";
+}
+function backupBlob(colId){ return new Blob([JSON.stringify(backupData(colId),null,1)],{type:"application/json"}); }
+async function doExport(colId){
+  try{
+    await saveFile({filename:backupName(colId),data:backupBlob(colId)});
+    const d=$("#druse"); if(d){ d.classList.add("win"); setTimeout(()=>d.classList.remove("win"),900); }
+    toast("Sauvegarde enregistrée 💎");
+  }catch(e){ if(e.code!=="cancelled"&&e.code!=="declined") toast("Export impossible."); }
+}
+
 /* ================= Partage de l'application ================= */
 function appUrl(){
   let u=localStorage.getItem("mineraux-url");
@@ -1197,14 +1367,14 @@ function appUrl(){
 }
 function selfHtml(withData){
   const root=document.documentElement.cloneNode(true);
-  ["bg","grid","chips","stats","addBody","viewBody","valBody","mapBody","lblBody","appBody"].forEach(id=>{ const e=root.querySelector("#"+id); if(e) e.innerHTML=""; });
+  ["bg","grid","chips","stats","addBody","viewBody","valBody","mapBody","lblBody","appBody","colsBody","saveBody"].forEach(id=>{ const e=root.querySelector("#"+id); if(e) e.innerHTML=""; });
   root.querySelectorAll(".sheet").forEach(e=>e.classList.remove("open"));
   const old=root.querySelector("#seed"); if(old) old.remove();
   const q=root.querySelector("#q"); if(q) q.setAttribute("value","");
   if(withData){
     const sc=document.createElement("script");
     sc.id="seed"; sc.type="application/json";
-    sc.textContent=JSON.stringify({meta,items}).replace(/</g,"\\u003c");
+    sc.textContent=JSON.stringify({meta,items:allItems}).replace(/</g,"\\u003c");
     root.querySelector("body").appendChild(sc);
   }
   return "<!DOCTYPE html>\n"+root.outerHTML;
@@ -1283,18 +1453,18 @@ async function saveFile(req){
   document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
   return {status:"saved"};
 }
-async function exportJson(){
-  const data=JSON.stringify({app:"mineraux",version:1,meta,items},null,1);
-  try{ await saveFile({filename:(meta.nom||"collection").replace(/[^a-z0-9]+/gi,"-")+"-sauvegarde.json",data:new Blob([data],{type:"application/json"})}); }
-  catch(e){ if(e.code!=="cancelled"&&e.code!=="declined") toast("Export impossible."); }
-}
+async function exportJson(){ return doExport(null); }
 async function importJson(file){
   try{
     const r=JSON.parse(await file.text());
     if(!r||!Array.isArray(r.items)) throw new Error("format");
-    if(!confirm("Importer "+r.items.length+" fiches ? Les fiches existantes avec le même identifiant seront remplacées.")) return;
-    if(r.meta&&r.meta.nom){ meta.nom=r.meta.nom; await saveMeta(); }
-    for(const it of r.items){ if(it&&it.id&&it.nom) await saveItem(it); }
+    const cols=(r.meta&&Array.isArray(r.meta.cols)&&r.meta.cols.length)?r.meta.cols:[{id:"imp"+uid(),nom:(r.meta&&r.meta.nom)||"Collection importée",createdAt:Date.now()}];
+    if(!confirm("Importer "+r.items.length+" fiches dans "+cols.length+" collection"+(cols.length>1?"s":"")+" ? Les fiches portant le même identifiant seront remplacées.")) return;
+    const known=new Set((meta.cols||[]).map(c=>c.id));
+    meta.cols=(meta.cols||[]).concat(cols.filter(c=>!known.has(c.id)));
+    await saveMeta();
+    for(const it of r.items){ if(it&&it.id&&it.nom) await saveItem(Object.assign({},it,{collId:it.collId||cols[0].id})); }
+    refreshItems(); render();
     toast(r.items.length+" fiches importées.");
   }catch(e){ toast("Fichier de sauvegarde invalide."); }
 }
@@ -1307,10 +1477,9 @@ $("#btnApp").onclick=openApp;
 $("#btnMap").onclick=()=>{ mapView=""; openMap(); };
 $("#btnLbl").onclick=()=>{ lblStart=1; openLabels(); };
 $("#btnWa").addEventListener("click",(e)=>{ if(!items.length){ e.preventDefault(); toast("Ajoutez d'abord un minéral."); } });
-$("#collName").onclick=async()=>{
-  const n=prompt("Nom de la collection :",meta.nom||"");
-  if(n&&n.trim()){ meta.nom=n.trim().slice(0,80); render(); await saveMeta(); }
-};
+$("#collName").onclick=openCols;
+$("#btnCols").onclick=openCols;
+$("#druse").onclick=openSave;
 async function onFile(input){
   const f=input.files&&input.files[0]; const direct=input.dataset.direct==="1";
   input.dataset.direct=""; input.value="";
@@ -1360,11 +1529,12 @@ lsLoad(); seedLoad(); render(); footer(); paintBg();
     if(d){
       db=d;
       db.collection("specimens").onSnapshot((snap)=>{
-        items=snap.docs.map(doc=>Object.assign({},doc.data(),{id:doc.id}));
+        allItems=snap.docs.map(doc=>Object.assign({},doc.data(),{id:doc.id}));
+        migrate();
         render(); if(bgTheme==="photos") paintBg();
       },()=>{ toast("Synchronisation interrompue : rechargez la page."); });
       db.doc("meta/info").onSnapshot((snap)=>{
-        if(snap.exists){ meta=Object.assign({},snap.data()); render(); }
+        if(snap.exists){ meta=Object.assign({},snap.data()); migrate(); render(); }
       },()=>{});
     }
     footer();
