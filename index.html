@@ -670,6 +670,51 @@ async function prepPhoto(file){
   return {thumb:d, blob, gps};
 }
 
+/* ================= Google Lens ================= */
+function openTab(url){
+  const a=document.createElement("a");
+  a.href=url; a.target="_blank"; a.rel="noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function toPngBlob(src){
+  const im=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
+  const c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight;
+  c.getContext("2d").drawImage(im,0,0);
+  return new Promise(r=>c.toBlob(r,"image/png"));
+}
+async function lensSearch(photo,btn){
+  if(!photo){ toast("Prenez d'abord une photo."); return; }
+  if(btn){ btn.disabled=true; btn.dataset.txt=btn.textContent; btn.textContent="Préparation…"; }
+  const done=()=>{ if(btn){ btn.disabled=false; btn.textContent=btn.dataset.txt||"🔍 Google Lens"; } };
+  try{
+    const jpg=await (await fetch(photo)).blob();
+    const file=new File([jpg],"mineral.jpg",{type:"image/jpeg"});
+    // téléphone : menu de partage, on choisit Google ou Google Lens
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file],title:"Identifier ce minéral",text:"Recherche par image"});
+        toast("Dans le menu, choisissez Google ou Google Lens.");
+        done(); return;
+      }catch(e){ if(e&&e.name==="AbortError"){ done(); return; } }
+    }
+    // ordinateur : la photo passe par le presse-papiers, Lens s'ouvre à côté
+    try{
+      if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+        const png=await toPngBlob(photo);
+        await navigator.clipboard.write([new window.ClipboardItem({"image/png":png})]);
+        openTab("https://lens.google.com/");
+        toast("Photo copiée : dans Lens, collez-la (Ctrl+V).");
+        done(); return;
+      }
+    }catch(e){}
+    // dernier recours : on enregistre la photo, à déposer dans Lens
+    await saveFile({filename:"mineral-a-identifier.jpg",data:jpg});
+    openTab("https://lens.google.com/");
+    toast("Photo enregistrée : déposez-la dans Google Lens.");
+  }catch(e){ toast("Transfert vers Lens impossible sur cet appareil."); }
+  done();
+}
+
 /* ================= Liens Web ================= */
 function webLinks(nom,nomEn){
   const n=encodeURIComponent(nom||""), e=encodeURIComponent(nomEn||nom||"");
@@ -746,11 +791,13 @@ function stepIdentify(){
   $("#addBody").innerHTML=
     (hasPhoto?'<img class="preview" src="'+draft.photo+'" alt="Photo du spécimen">':'')+
     (sample&&hasPhoto&&canImages?'<button class="big b-add" id="aId" style="width:100%"><span class="ic">🔍</span> Rechercher une correspondance</button>':'')+
+    (hasPhoto?'<button class="big b-cam" id="aLens" style="width:100%;margin-top:8px"><span class="ic">🔎</span> Envoyer la photo à Google Lens</button>':'')+
     '<label class="f">Vous connaissez déjà le nom ?<input id="aName" placeholder="ex : Améthyste, Pyrite, Fluorite"></label>'+
     '<div class="row"><button class="big b-ghost" id="aByName">'+(sample?"Chercher la fiche":"Continuer")+'</button></div>'+
-    '<p class="small">La recherche Web par image (Google Lens) reste possible : enregistrez la photo puis déposez-la sur <a href="https://lens.google.com/" target="_blank" rel="noopener">lens.google.com</a>.</p>'+
+    '<p class="small">Sur téléphone, le bouton Lens ouvre le menu de partage : choisissez Google ou Google Lens. Sur ordinateur, la photo est copiée et Lens s\'ouvre : collez-la avec Ctrl+V.</p>'+
     '<div id="aRes"></div>';
   const bi=$("#aId"); if(bi) bi.onclick=()=>runAI(()=>aiIdentify(draft._blob));
+  const bl=$("#aLens"); if(bl) bl.onclick=()=>lensSearch(draft.photo,bl);
   $("#aByName").onclick=()=>{
     const n=$("#aName").value.trim();
     if(!n){ toast("Saisissez un nom."); return; }
@@ -1111,6 +1158,7 @@ function openView(id){
       '<a class="mini" style="text-align:center;text-decoration:none" href="mailto:?subject='+encodeURIComponent("Minéral : "+x.nom)+'&body='+encodeURIComponent(ficheText(x))+'">📧 E-mail</a>'+
       '<button class="mini" id="vShare">📤 Autre application</button>'+
       '<button class="mini" id="vCopy">📋 Copier</button>'+
+      (x.photo?'<button class="mini" id="vLens">🔎 Google Lens</button>':'')+
     '</div>'+
     '<div class="row">'+
       '<button class="big b-lbl" id="vPrint"'+(window.jspdf?"":" disabled")+'>🖨️ Imprimer la fiche</button>'+
@@ -1122,6 +1170,7 @@ function openView(id){
   $("#vEdit").onclick=()=>{ closeSheet("shView"); draft=Object.assign({},x); $("#addTitle").textContent="Modifier la fiche"; openSheet("shAdd"); stepLabel(); };
   const bl=$("#vLabel"); if(bl) bl.onclick=()=>downloadLabel(x);
   $("#vPrint").onclick=()=>makeFichePdf(x);
+  const vl=$("#vLens"); if(vl) vl.onclick=()=>lensSearch(x.photo,vl);
   $("#vCopy").onclick=async()=>{
     try{ await navigator.clipboard.writeText(ficheText(x)); toast("Fiche copiée."); }
     catch(e){ toast("Copie refusée par le navigateur."); }
