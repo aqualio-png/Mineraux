@@ -52,7 +52,10 @@ img{max-width:100%}
 #bg .tile{overflow:hidden;position:relative}
 #bg .tile:nth-child(5){grid-column:span 2}
 #bg.solo .tile:nth-child(5){grid-column:auto}
-#bg svg,#bg .pht{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(1.75) contrast(1.35) brightness(.92)}
+#bg svg{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(1.75) contrast(1.35) brightness(.92)}
+#bg .pht{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(1.15) blur(3px)}
+@media (prefers-reduced-motion:no-preference){#bg .pht{animation:kb 26s ease-in-out infinite alternate}#bg .tile:nth-child(2n) .pht{animation-duration:34s;animation-direction:alternate-reverse}#bg .tile:nth-child(3n) .pht{animation-duration:30s}}
+@keyframes kb{0%{transform:scale(1.05) translate3d(0,0,0)}100%{transform:scale(1.28) translate3d(-3%,-4%,0)}}
 @media (min-width:760px){#bg{grid-template-columns:repeat(5,1fr);grid-template-rows:1fr}#bg .tile:nth-child(5){grid-column:auto}}
 #veil{position:fixed;inset:0;z-index:-1;background:var(--bg);opacity:.58;pointer-events:none}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #veil{opacity:.68}}
@@ -61,6 +64,11 @@ img{max-width:100%}
 
 /* ---------- En-tête ---------- */
 #hero{position:relative;padding:26px 0 20px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+#vitrine{position:relative;width:104px;height:118px;border:0;background:none;padding:0;flex:none}
+#vitStack{position:absolute;inset:0}
+#vitrine .play{position:absolute;right:-2px;bottom:2px;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.72rem;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.vit{position:absolute;inset:0;background-size:cover;background-position:center;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);opacity:0;transform:scale(.82) rotate(-8deg);transition:opacity .9s ease,transform .9s cubic-bezier(.2,1.1,.4,1);filter:drop-shadow(0 12px 18px rgba(76,40,160,.45))}
+.vit.on{opacity:1;transform:scale(1) rotate(0)}
 #crystal{width:92px;height:110px;filter:drop-shadow(0 12px 18px rgba(123,63,228,.35))}
 #crystal .f{transition:fill .6s}
 @media (prefers-reduced-motion:no-preference){
@@ -109,6 +117,15 @@ img{max-width:100%}
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
 .card{position:relative;background:var(--panel);border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .2s}
 .card:hover{transform:translateY(-3px) rotate(-.4deg)}
+.card .ph::before{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.55) 50%,transparent 58%);transform:translateX(-120%)}
+@media (prefers-reduced-motion:no-preference){
+  .card{opacity:0;transform:translateY(14px)}
+  .card.in{animation:rise .55s cubic-bezier(.2,1.1,.4,1) forwards}
+  .card.in .ph::before{animation:sheen 1.6s ease .35s}
+}
+@media (prefers-reduced-motion:reduce){.card{opacity:1;transform:none}}
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes sheen{0%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
 .card .ph{aspect-ratio:1/1;background:#ddd center/cover;position:relative}
 .card .ph::after{content:"";position:absolute;inset:auto 0 0 0;height:22px;background:var(--fam);clip-path:polygon(0 100%,0 40%,18% 0,40% 55%,62% 5%,82% 60%,100% 20%,100% 100%)}
 .card .ph .num{position:absolute;top:8px;left:8px;background:rgba(20,14,40,.72);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:8px}
@@ -172,6 +189,23 @@ dl.props dd{margin:0}
 .toast.on{transform:translateX(-50%) translateY(0)}
 .danger{background:linear-gradient(135deg,#F0476E,#C42454)}
 .hide{display:none!important}
+.sheet .box.show{background:#0d0a18;color:#fff;max-width:760px}
+.sheet .box.show .x{background:#1b1530;border-color:#3a3260;color:#fff}
+.sheet .box.show .small{color:#b9b0d8!important}
+#showBody{position:relative}
+.slide{position:relative;width:100%;aspect-ratio:4/5;max-height:62vh;border-radius:20px;overflow:hidden;background:#000}
+.slide img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .8s}
+.slide img.on{opacity:1}
+@media (prefers-reduced-motion:no-preference){.slide img.on{animation:kb2 7s ease-out forwards}}
+@keyframes kb2{from{transform:scale(1.02)}to{transform:scale(1.16)}}
+.slide .cap{position:absolute;left:0;right:0;bottom:0;padding:38px 16px 14px;background:linear-gradient(to top,rgba(8,5,18,.92),transparent);z-index:2}
+.slide .cap b{font-family:var(--display);font-size:1.3rem;display:block}
+.slide .cap span{font-size:.85rem;opacity:.85}
+.slide .bar{position:absolute;top:0;left:0;height:4px;background:var(--citrine);z-index:3;width:0}
+@media (prefers-reduced-motion:no-preference){.slide .bar.run{animation:prog 4s linear forwards}}
+@keyframes prog{to{width:100%}}
+#showBody .ctrl{display:flex;gap:10px;justify-content:center;margin-top:12px}
+#showBody .ctrl button{flex:1;max-width:120px;min-height:54px;border-radius:14px;border:1px solid #3a3260;background:#1b1530;color:#fff;font-weight:700}
 @media (pointer:coarse){.mini,.chip,.colrow .ic,.seg button,.lblgrid button{min-height:60px}.mini{padding:10px 14px}}
 @media (min-width:1100px){#grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}
 @media (min-width:900px) and (max-height:620px){#actions{grid-template-columns:repeat(4,1fr)}.big{min-height:64px}}
@@ -223,13 +257,9 @@ textarea#rawBox{width:100%;min-height:140px;font-family:ui-monospace,monospace;f
 <div id="bg" aria-hidden="true"></div><div id="veil" aria-hidden="true"></div>
 <div class="wrap">
   <header id="hero">
-    <svg id="crystal" viewBox="0 0 92 110" aria-hidden="true">
-      <polygon class="f" id="f1" points="46,2 70,30 46,40" fill="#9D6BF5"/>
-      <polygon class="f" id="f2" points="46,2 22,30 46,40" fill="#7B3FE4"/>
-      <polygon class="f" id="f3" points="22,30 46,40 46,106 14,88" fill="#5A26B8"/>
-      <polygon class="f" id="f4" points="70,30 46,40 46,106 78,88" fill="#8C55EE"/>
-      <polygon points="46,2 34,24 46,34" fill="#fff" class="shine" opacity="0"/>
-    </svg>
+    <button id="vitrine" title="Diaporama de la collection" aria-label="Ouvrir le diaporama">
+      <div id="vitStack"></div><span class="play">▶</span>
+    </button>
     <div>
       <button id="collName" title="Changer de collection">Ma collection</button>
       <p id="collSub">Touchez le titre pour renommer votre collection.</p>
@@ -352,6 +382,14 @@ textarea#rawBox{width:100%;min-height:140px;font-family:ui-monospace,monospace;f
     <button class="x" data-close="shApp" aria-label="Fermer">✕</button>
     <h2 id="appTitle">Partager l'application</h2>
     <div id="appBody"></div>
+  </div>
+</div>
+
+<!-- Diaporama -->
+<div class="sheet" id="shShow" role="dialog" aria-modal="true" aria-label="Diaporama">
+  <div class="box show">
+    <button class="x" data-close="shShow" aria-label="Fermer">✕</button>
+    <div id="showBody"></div>
   </div>
 </div>
 
@@ -496,20 +534,48 @@ function render(){
       (v>0?'<div class="val">≈ '+eur(v)+'</div>':'')+'</div></button>';
   }).join("");
   lastBorn=null;
+  revealCards();
   $("#empty").classList.toggle("hide",items.length>0);
 
 }
 
+const CRISTAL_SVG='<svg id="crystal" viewBox="0 0 92 110" aria-hidden="true" style="width:100%;height:100%">'+
+  '<polygon class="f" id="f1" points="46,2 70,30 46,40" fill="#9D6BF5"/><polygon class="f" id="f2" points="46,2 22,30 46,40" fill="#7B3FE4"/>'+
+  '<polygon class="f" id="f3" points="22,30 46,40 46,106 14,88" fill="#5A26B8"/><polygon class="f" id="f4" points="70,30 46,40 46,106 78,88" fill="#8C55EE"/>'+
+  '<polygon points="46,2 34,24 46,34" fill="#fff" class="shine" opacity="0"/></svg>';
+let vitTimer=null, vitIdx=0, vitPhotos=[];
+function paintVitrine(){
+  const st=$("#vitStack"); if(!st) return;
+  const ph=items.filter(x=>x.photo).slice(-8).map(x=>x.photo);
+  const play=$("#vitrine .play");
+  if(!ph.length){
+    vitPhotos=[]; if(vitTimer){ clearInterval(vitTimer); vitTimer=null; }
+    st.innerHTML=CRISTAL_SVG; if(play) play.style.display="none";
+    return;
+  }
+  if(play) play.style.display="";
+  if(ph.join("|")===vitPhotos.join("|")) return;
+  vitPhotos=ph; vitIdx=0;
+  st.innerHTML=ph.map((p,i)=>'<div class="vit'+(i===0?" on":"")+'" style="background-image:url('+p+')"></div>').join("");
+  if(vitTimer) clearInterval(vitTimer);
+  if(ph.length>1) vitTimer=setInterval(()=>{
+    const els=st.querySelectorAll(".vit"); if(!els.length) return;
+    els[vitIdx%els.length].classList.remove("on");
+    vitIdx=(vitIdx+1)%els.length;
+    els[vitIdx].classList.add("on");
+  },3200);
+}
 function paintCrystal(){
   // le cristal prend les couleurs des familles présentes
   const cols=[...new Set(items.map(x=>famColor(x.famille)))];
   const base=cols.length?cols:["#9D6BF5","#7B3FE4","#5A26B8","#8C55EE"];
   ["f1","f2","f3","f4"].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.setAttribute("fill",base[i%base.length]); });
+  paintVitrine();
 }
 
 /* ================= Fond minéral ================= */
 const BGS={mosaique:"Fond : mosaïque",labradorite:"Fond : labradorite","oeil-tigre":"Fond : œil de tigre",cristal:"Fond : cristal de roche","oeil-celeste":"Fond : œil céleste",lapis:"Fond : lapis-lazuli",photos:"Fond : mes photos",aucun:"Fond : aucun"};
-let bgTheme=localStorage.getItem("mineraux-bg")||"mosaique";
+let bgTheme=localStorage.getItem("mineraux-bg")||"";
 function prng(seed){ let s=seed||1; return ()=>{ s=(s*1664525+1013904223)%4294967296; return s/4294967296; }; }
 function svgWrap(id,inner){ return '<svg viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>'; }
 function texLabradorite(u){
@@ -573,6 +639,47 @@ function texLapis(u){
     '<g filter="url(#'+u+'b)">'+veins+'</g>'+dots);
 }
 const TEX={labradorite:texLabradorite,"oeil-tigre":texTigre,cristal:texCristal,"oeil-celeste":texCeleste,lapis:texLapis};
+let cardObs=null;
+function revealCards(){
+  const cards=document.querySelectorAll("#grid .card");
+  if(!("IntersectionObserver" in window)){ cards.forEach(c=>c.classList.add("in")); return; }
+  if(!cardObs) cardObs=new IntersectionObserver((ent)=>{
+    ent.forEach((e,i)=>{ if(e.isIntersecting){ const el=e.target; setTimeout(()=>el.classList.add("in"),Math.min(i*70,420)); cardObs.unobserve(el); } });
+  },{rootMargin:"60px"});
+  cards.forEach(c=>{ if(!c.classList.contains("in")) cardObs.observe(c); });
+}
+
+/* ================= Diaporama ================= */
+let showI=0, showT=null, showPlay=true;
+function openShow(){
+  const list=items.filter(x=>x.photo);
+  if(!list.length){ toast("Ajoutez des photos pour lancer le diaporama."); return; }
+  showI=0; showPlay=true;
+  $("#showBody").innerHTML=
+    '<div class="slide" id="slide">'+list.map((x,i)=>'<img src="'+x.photo+'" alt="'+esc(x.nom)+'"'+(i===0?' class="on"':'')+'>').join("")+
+    '<div class="bar" id="sBar"></div><div class="cap" id="sCap"></div></div>'+
+    '<div class="ctrl"><button id="sPrev">‹</button><button id="sPlay">⏸</button><button id="sNext">›</button></div>'+
+    '<p class="small" style="text-align:center;color:#b9b0d8">Touchez l\'image pour ouvrir la fiche.</p>';
+  const imgs=$("#slide").querySelectorAll("img");
+  const cap=()=>{
+    const x=list[showI];
+    $("#sCap").innerHTML='<b>'+esc(x.nom)+'</b><span>'+esc([x.famille,x.provenance,numStr(x.numero)].filter(Boolean).join(" · "))+'</span>';
+    const b=$("#sBar"); b.classList.remove("run"); void b.offsetWidth; if(showPlay) b.classList.add("run");
+  };
+  const go=(d)=>{
+    imgs[showI].classList.remove("on");
+    showI=(showI+d+list.length)%list.length;
+    imgs[showI].classList.add("on"); cap();
+  };
+  const tick=()=>{ if(showT) clearInterval(showT); if(showPlay) showT=setInterval(()=>go(1),4000); };
+  cap(); tick();
+  $("#sNext").onclick=()=>{ go(1); tick(); };
+  $("#sPrev").onclick=()=>{ go(-1); tick(); };
+  $("#sPlay").onclick=(e)=>{ showPlay=!showPlay; e.target.textContent=showPlay?"⏸":"▶"; tick(); cap(); };
+  $("#slide").onclick=()=>{ const x=list[showI]; closeSheet("shShow"); openView(x.id); };
+  openSheet("shShow");
+}
+
 function paintBg(){
   const bg=$("#bg"); if(!bg) return;
   bg.classList.remove("solo");
@@ -584,6 +691,7 @@ function paintBg(){
     else {
       if(ph.length===1) bg.classList.add("solo");
       bg.innerHTML=ph.map(x=>'<div class="tile"><img class="pht" src="'+x.photo+'" alt=""></div>').join("");
+      $("#veil").style.opacity=".78";
       return;
     }
   }
@@ -1609,6 +1717,7 @@ async function importJson(file){
 $("#btnAdd").onclick=()=>{ $("#addTitle").textContent="Nouveau minéral"; startAdd(null); };
 $("#btnCam").onclick=()=>{ $("#fCam").dataset.direct="1"; $("#fCam").click(); };
 $("#btnVal").onclick=openValue;
+$("#vitrine").onclick=openShow;
 $("#btnApp").onclick=openApp;
 $("#btnMap").onclick=()=>{ mapView=""; openMap(); };
 $("#btnLbl").onclick=()=>{ lblStart=1; openLabels(); };
@@ -1635,11 +1744,11 @@ $("#fCam").onchange=()=>onFile($("#fCam"));
 $("#fGal").onchange=()=>onFile($("#fGal"));
 $("#fImport").onchange=()=>{ const f=$("#fImport").files[0]; $("#fImport").value=""; if(f) importJson(f); };
 $("#bgPick").innerHTML=Object.keys(BGS).map(k=>'<option value="'+k+'"'+(k===bgTheme?" selected":"")+'>'+BGS[k]+'</option>').join("");
-$("#bgPick").onchange=(e)=>{ bgTheme=e.target.value; try{ localStorage.setItem("mineraux-bg",bgTheme); }catch(err){} paintBg(); $("#bgPick").value=bgTheme; };
+$("#bgPick").onchange=(e)=>{ $("#veil").style.opacity=""; bgTheme=e.target.value; try{ localStorage.setItem("mineraux-bg",bgTheme); }catch(err){} paintBg(); $("#bgPick").value=bgTheme; };
 $("#q").oninput=render; $("#sort").onchange=render;
 $("#chips").onclick=(e)=>{ const b=e.target.closest(".chip"); if(!b) return; famFilter=b.dataset.fam; render(); };
 $("#grid").onclick=(e)=>{ const c=e.target.closest(".card"); if(c) openView(c.dataset.id); };
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeSheet(b.dataset.close));
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{ closeSheet(b.dataset.close); if(b.dataset.close==="shShow"&&showT){ clearInterval(showT); showT=null; } });
 document.querySelectorAll(".sheet").forEach(s=>s.addEventListener("click",(e)=>{ if(e.target===s) closeSheet(s.id); }));
 document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") document.querySelectorAll(".sheet.open").forEach(s=>closeSheet(s.id)); });
 
@@ -1654,7 +1763,10 @@ function footer(){
 }
 
 /* ================= Démarrage ================= */
-lsLoad(); seedLoad(); render(); footer(); paintBg();
+lsLoad(); seedLoad();
+if(!bgTheme) bgTheme=items.some(x=>x.photo)?"photos":"mosaique";
+if($("#bgPick")) $("#bgPick").value=bgTheme;
+render(); footer(); paintBg();
 (async function boot(){
   const C=window.claude;
   if(!C||typeof C.use!=="function") return;
@@ -1667,6 +1779,7 @@ lsLoad(); seedLoad(); render(); footer(); paintBg();
       db.collection("specimens").onSnapshot((snap)=>{
         allItems=snap.docs.map(doc=>Object.assign({},doc.data(),{id:doc.id}));
         migrate();
+        if(!localStorage.getItem("mineraux-bg")&&items.some(x=>x.photo)) bgTheme="photos";
         render(); if(bgTheme==="photos") paintBg();
       },()=>{ toast("Synchronisation interrompue : rechargez la page."); });
       db.doc("meta/info").onSnapshot((snap)=>{
